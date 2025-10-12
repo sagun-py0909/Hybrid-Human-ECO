@@ -389,13 +389,28 @@ async def complete_task(task_data: TaskComplete, current_user: dict = Depends(ge
     if not program or program["userId"] != current_user["_id"]:
         raise HTTPException(status_code=404, detail="Program not found")
     
+    # Check if the program is for today
+    today = datetime.utcnow().date().isoformat()
+    program_date = program.get("date")
+    
+    if program_date != today:
+        raise HTTPException(
+            status_code=400, 
+            detail="Tasks can only be completed on their scheduled date"
+        )
+    
     # Update task
     tasks = program.get("tasks", [])
+    task_found = False
     for task in tasks:
         if task["taskId"] == task_data.taskId:
             task["completed"] = True
             task["completedAt"] = datetime.utcnow()
+            task_found = True
             break
+    
+    if not task_found:
+        raise HTTPException(status_code=404, detail="Task not found")
     
     await db.programs.update_one(
         {"_id": ObjectId(task_data.programId)},
