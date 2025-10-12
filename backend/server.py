@@ -139,6 +139,11 @@ class DeviceUsage(BaseModel):
     date: datetime = Field(default_factory=datetime.utcnow)
     notes: Optional[str] = None
 
+class DeviceUsageCreate(BaseModel):
+    deviceType: str
+    duration: int  # in minutes
+    notes: Optional[str] = None
+
 class Report(BaseModel):
     userId: str
     title: str
