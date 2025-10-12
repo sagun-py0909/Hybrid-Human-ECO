@@ -807,7 +807,7 @@ async def get_user_progress(user_id: str):
     }
 
 @api_router.post("/admin/reports/upload", dependencies=[Depends(get_admin_user)])
-async def upload_report(report_data: Report, current_user: dict = Depends(get_admin_user)):
+async def upload_report(report_data: ReportUpload, current_user: dict = Depends(get_admin_user)):
     """Upload a report for a user"""
     # Validate user exists
     user = await db.users.find_one({"_id": ObjectId(report_data.userId)})
