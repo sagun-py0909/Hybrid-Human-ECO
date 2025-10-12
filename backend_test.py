@@ -353,9 +353,8 @@ class HybridHumanAPITester:
             self.log_test("Complete Task", False, "No user token available")
             return False
             
-        # First get today's programs to find a task to complete
-        today = datetime.now().date().isoformat()
-        response = self.make_request('GET', f'/programs/date/{today}', token=self.user_token)
+        # Get upcoming programs to find an incomplete task
+        response = self.make_request('GET', '/programs/upcoming', token=self.user_token)
         
         if not response or response.status_code != 200:
             self.log_test("Complete Task", False, "Could not retrieve programs to find task")
@@ -363,24 +362,26 @@ class HybridHumanAPITester:
             
         programs = response.json()
         if not programs:
-            self.log_test("Complete Task", False, "No programs found for today")
+            self.log_test("Complete Task", False, "No programs found")
             return False
             
         # Find an incomplete task
         program_id = None
         task_id = None
+        task_title = None
         
         for program in programs:
             for task in program.get('tasks', []):
                 if not task.get('completed', False):
                     program_id = program['_id']
                     task_id = task['taskId']
+                    task_title = task.get('title', 'Unknown task')
                     break
             if program_id:
                 break
                 
         if not program_id or not task_id:
-            self.log_test("Complete Task", False, "No incomplete tasks found")
+            self.log_test("Complete Task", False, "No incomplete tasks found in any programs")
             return False
             
         # Complete the task
@@ -395,7 +396,7 @@ class HybridHumanAPITester:
             data = response.json()
             if 'message' in data:
                 self.log_test("Complete Task", True, 
-                            f"Task completed successfully: {data['message']}")
+                            f"Task '{task_title}' completed successfully")
                 return True
             else:
                 self.log_test("Complete Task", False, "No success message in response")
