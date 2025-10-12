@@ -155,6 +155,14 @@ class Report(BaseModel):
 class UpdateStatus(BaseModel):
     status: str
 
+class BulkProgramCreate(BaseModel):
+    userIds: List[str]
+    title: str
+    description: str
+    tasks: List[TaskItem]
+    startDate: str
+    weeks: int  # Duration in weeks
+
 class UserStats(BaseModel):
     totalTasks: int
     completedTasks: int
