@@ -310,6 +310,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#8FBC8F',
     borderColor: '#8FBC8F',
   },
+  checkboxDisabled: {
+    backgroundColor: '#1A1A1A',
+    borderColor: '#333',
+    opacity: 0.5,
+  },
   taskInfo: {
     flex: 1,
   },
