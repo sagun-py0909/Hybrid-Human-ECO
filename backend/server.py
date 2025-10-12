@@ -152,6 +152,12 @@ class Report(BaseModel):
     date: datetime = Field(default_factory=datetime.utcnow)
     createdBy: str
 
+class ReportUpload(BaseModel):
+    userId: str
+    title: str
+    reportType: str
+    pdfData: str  # base64 encoded
+
 class UpdateStatus(BaseModel):
     status: str
 
