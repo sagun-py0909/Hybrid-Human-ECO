@@ -476,9 +476,10 @@ async def get_my_tickets(current_user: dict = Depends(get_current_user)):
 async def get_all_tickets():
     tickets = await db.tickets.find({}).sort("createdAt", -1).to_list(500)
     for ticket in tickets:
+        user_id = ticket["userId"]
         ticket["userId"] = str(ticket["userId"])
         # Get user info
-        user = await db.users.find_one({"_id": ticket["userId"]})
+        user = await db.users.find_one({"_id": user_id})
         if user:
             ticket["userName"] = user.get("fullName", "Unknown")
     return [serialize_doc(t) for t in tickets]
