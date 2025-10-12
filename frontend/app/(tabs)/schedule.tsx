@@ -104,6 +104,16 @@ export default function ScheduleScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Info Banner for non-today dates */}
+      {!isToday && (
+        <View style={styles.infoBanner}>
+          <Ionicons name="information-circle" size={20} color="#8FBC8F" />
+          <Text style={styles.infoBannerText}>
+            Tasks can only be completed on their scheduled date
+          </Text>
+        </View>
+      )}
+
       {/* Filter Tabs */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
