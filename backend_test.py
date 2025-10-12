@@ -20,7 +20,7 @@ API_BASE = f"{BACKEND_URL}/api"
 
 print(f"Testing Admin Panel CRUD Operations at: {API_BASE}")
 
-class HybridHumanAPITester:
+class AdminPanelCRUDTester:
     def __init__(self):
         self.user_token = None
         self.admin_token = None
