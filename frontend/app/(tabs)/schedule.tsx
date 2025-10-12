@@ -146,16 +146,20 @@ export default function ScheduleScreen() {
                   <View style={styles.taskHeaderLeft}>
                     <TouchableOpacity
                       onPress={() =>
-                        !task.completed && handleCompleteTask(task.programId, task.taskId)
+                        !task.completed && isToday && handleCompleteTask(task.programId, task.taskId)
                       }
                       style={[
                         styles.checkbox,
                         task.completed && styles.checkboxCompleted,
+                        !isToday && !task.completed && styles.checkboxDisabled,
                       ]}
-                      disabled={task.completed}
+                      disabled={task.completed || !isToday}
                     >
                       {task.completed && (
                         <Ionicons name="checkmark" size={20} color="#FFF" />
+                      )}
+                      {!isToday && !task.completed && (
+                        <Ionicons name="lock-closed" size={16} color="#666" />
                       )}
                     </TouchableOpacity>
                     <View style={styles.taskInfo}>
