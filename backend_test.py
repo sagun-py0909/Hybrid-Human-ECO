@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend API Tests for Hybrid Human Application
-Tests all authentication, user, program, ticket, call request, device usage, and admin endpoints
+Admin Panel CRUD Operations Test Suite for Hybrid Human Application
+Tests all admin authentication, users, programs, reports, tickets, call requests, and analytics endpoints
 """
 
 import requests
 import json
+import base64
 from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
@@ -17,7 +18,7 @@ load_dotenv('/app/frontend/.env')
 BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'https://hybrid-human-1.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 
-print(f"Testing API at: {API_BASE}")
+print(f"Testing Admin Panel CRUD Operations at: {API_BASE}")
 
 class HybridHumanAPITester:
     def __init__(self):
