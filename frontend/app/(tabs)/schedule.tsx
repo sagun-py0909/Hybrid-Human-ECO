@@ -41,6 +41,14 @@ export default function ScheduleScreen() {
   };
 
   const handleCompleteTask = async (programId: string, taskId: string) => {
+    if (!isToday) {
+      Alert.alert(
+        'Cannot Complete Task',
+        'Tasks can only be completed on their scheduled date. Please switch to today to mark tasks as complete.'
+      );
+      return;
+    }
+
     try {
       const headers = { Authorization: `Bearer ${token}` };
       await axios.put(
@@ -50,9 +58,10 @@ export default function ScheduleScreen() {
       );
       loadPrograms();
       Alert.alert('Success', 'Task marked as complete!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error completing task:', error);
-      Alert.alert('Error', 'Failed to complete task');
+      const errorMsg = error.response?.data?.detail || 'Failed to complete task';
+      Alert.alert('Error', errorMsg);
     }
   };
 
