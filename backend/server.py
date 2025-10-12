@@ -614,6 +614,7 @@ async def get_analytics():
     total_admins = await db.users.count_documents({"role": "admin"})
     open_tickets = await db.tickets.count_documents({"status": "open"})
     pending_calls = await db.call_requests.count_documents({"status": "pending"})
+    total_programs = await db.programs.count_documents({})
     
     # Recent activity
     recent_users = await db.users.find({}).sort("createdAt", -1).limit(5).to_list(5)
@@ -623,8 +624,201 @@ async def get_analytics():
         "totalAdmins": total_admins,
         "openTickets": open_tickets,
         "pendingCalls": pending_calls,
+        "totalPrograms": total_programs,
         "recentUsers": [serialize_doc(u) for u in recent_users]
     }
+
+@api_router.post("/admin/programs/bulk", dependencies=[Depends(get_admin_user)])
+async def create_bulk_programs(bulk_data: BulkProgramCreate, current_user: dict = Depends(get_admin_user)):
+    """Create programs for multiple users over specified weeks"""
+    from datetime import timedelta
+    
+    start_date = datetime.fromisoformat(bulk_data.startDate).date()
+    total_days = bulk_data.weeks * 7
+    created_count = 0
+    
+    for user_id in bulk_data.userIds:
+        # Create daily programs for the duration
+        for day in range(total_days):
+            program_date = (start_date + timedelta(days=day)).isoformat()
+            
+            program_dict = {
+                "userId": user_id,
+                "title": f"{bulk_data.title} - Day {day + 1}",
+                "description": bulk_data.description,
+                "tasks": [task.dict() for task in bulk_data.tasks],
+                "date": program_date,
+                "createdBy": current_user["_id"],
+                "createdAt": datetime.utcnow()
+            }
+            
+            await db.programs.insert_one(program_dict)
+            created_count += 1
+    
+    return {
+        "message": f"Successfully created {created_count} programs for {len(bulk_data.userIds)} users",
+        "programsCreated": created_count,
+        "usersAssigned": len(bulk_data.userIds),
+        "duration": f"{bulk_data.weeks} weeks"
+    }
+
+@api_router.get("/admin/templates", dependencies=[Depends(get_admin_user)])
+async def get_program_templates():
+    """Get predefined program templates"""
+    templates = [
+        {
+            "id": "cryo-basic",
+            "name": "Cryotherapy Basic",
+            "description": "Basic cryotherapy protocol for beginners",
+            "tasks": [
+                {
+                    "title": "Cryotherapy Session",
+                    "description": "Full body cryotherapy",
+                    "deviceType": "Cryotherapy Chamber",
+                    "duration": "3 minutes"
+                }
+            ]
+        },
+        {
+            "id": "redlight-recovery",
+            "name": "Red Light Recovery",
+            "description": "Red light therapy for cellular regeneration",
+            "tasks": [
+                {
+                    "title": "Red Light Therapy",
+                    "description": "Infrared sauna session",
+                    "deviceType": "Red Light Sauna",
+                    "duration": "20 minutes"
+                }
+            ]
+        },
+        {
+            "id": "compression-recovery",
+            "name": "Compression Recovery",
+            "description": "Pneumatic compression therapy",
+            "tasks": [
+                {
+                    "title": "Compression Therapy",
+                    "description": "Full body compression for circulation",
+                    "deviceType": "Compression Therapy",
+                    "duration": "30 minutes"
+                }
+            ]
+        },
+        {
+            "id": "full-protocol",
+            "name": "Complete Wellness Protocol",
+            "description": "Comprehensive daily wellness routine",
+            "tasks": [
+                {
+                    "title": "Cryotherapy Session",
+                    "description": "Full body cryotherapy",
+                    "deviceType": "Cryotherapy Chamber",
+                    "duration": "3 minutes"
+                },
+                {
+                    "title": "Red Light Therapy",
+                    "description": "Infrared sauna session",
+                    "deviceType": "Red Light Sauna",
+                    "duration": "20 minutes"
+                },
+                {
+                    "title": "Compression Recovery",
+                    "description": "Pneumatic compression",
+                    "deviceType": "Compression Therapy",
+                    "duration": "30 minutes"
+                }
+            ]
+        }
+    ]
+    return templates
+
+@api_router.get("/admin/user/{user_id}/progress", dependencies=[Depends(get_admin_user)])
+async def get_user_progress(user_id: str):
+    """Get detailed progress for a specific user"""
+    # Get user info
+    user = await db.users.find_one({"_id": ObjectId(user_id)})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Get all programs
+    programs = await db.programs.find({"userId": user_id}).sort("date", -1).to_list(1000)
+    
+    # Calculate stats
+    total_tasks = 0
+    completed_tasks = 0
+    task_history = []
+    
+    for program in programs:
+        for task in program.get("tasks", []):
+            total_tasks += 1
+            task_entry = {
+                "date": program["date"],
+                "programTitle": program["title"],
+                "taskTitle": task["title"],
+                "deviceType": task["deviceType"],
+                "duration": task["duration"],
+                "completed": task.get("completed", False),
+                "completedAt": task.get("completedAt")
+            }
+            task_history.append(task_entry)
+            
+            if task.get("completed"):
+                completed_tasks += 1
+    
+    completion_rate = int((completed_tasks / total_tasks * 100)) if total_tasks > 0 else 0
+    
+    # Calculate streak
+    streak = 0
+    today = datetime.utcnow().date()
+    for i in range(30):
+        check_date = (today - timedelta(days=i)).isoformat()
+        day_program = await db.programs.find_one({"userId": user_id, "date": check_date})
+        if day_program:
+            day_completed = all(task.get("completed", False) for task in day_program.get("tasks", []))
+            if day_completed:
+                streak += 1
+            else:
+                break
+        else:
+            break
+    
+    # Get device usage
+    usage = await db.device_usage.find({"userId": ObjectId(user_id)}).to_list(1000)
+    total_usage = sum(record.get("duration", 0) for record in usage)
+    
+    return {
+        "user": serialize_doc(user),
+        "stats": {
+            "totalTasks": total_tasks,
+            "completedTasks": completed_tasks,
+            "completionRate": completion_rate,
+            "currentStreak": streak,
+            "totalDeviceUsage": total_usage
+        },
+        "taskHistory": task_history,
+        "programCount": len(programs)
+    }
+
+@api_router.post("/admin/reports/upload", dependencies=[Depends(get_admin_user)])
+async def upload_report(report_data: Report, current_user: dict = Depends(get_admin_user)):
+    """Upload a report for a user"""
+    # Validate user exists
+    user = await db.users.find_one({"_id": ObjectId(report_data.userId)})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    report_dict = {
+        "userId": ObjectId(report_data.userId),
+        "title": report_data.title,
+        "reportType": report_data.reportType,
+        "pdfData": report_data.pdfData,
+        "date": datetime.utcnow(),
+        "createdBy": ObjectId(current_user["_id"])
+    }
+    
+    result = await db.reports.insert_one(report_dict)
+    return {"id": str(result.inserted_id), "message": "Report uploaded successfully"}
 
 # Include the router in the main app
 app.include_router(api_router)
