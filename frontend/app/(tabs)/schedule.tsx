@@ -242,6 +242,21 @@ const styles = StyleSheet.create({
   dateInfo: {
     alignItems: 'center',
   },
+  infoBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2A2A2A',
+    padding: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#3A3A3A',
+  },
+  infoBannerText: {
+    fontSize: 13,
+    color: '#8FBC8F',
+    marginLeft: 8,
+    flex: 1,
+  },
   dateText: {
     fontSize: 16,
     fontWeight: 'bold',
