@@ -549,9 +549,10 @@ async def get_my_device_usage(current_user: dict = Depends(get_current_user)):
     return [serialize_doc(u) for u in usage]
 
 @api_router.post("/device-usage")
-async def log_device_usage(usage: DeviceUsage, current_user: dict = Depends(get_current_user)):
+async def log_device_usage(usage: DeviceUsageCreate, current_user: dict = Depends(get_current_user)):
     usage_dict = usage.dict()
     usage_dict["userId"] = ObjectId(current_user["_id"])
+    usage_dict["date"] = datetime.utcnow()
     
     result = await db.device_usage.insert_one(usage_dict)
     return {"id": str(result.inserted_id), "message": "Device usage logged successfully"}
