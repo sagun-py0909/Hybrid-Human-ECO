@@ -243,7 +243,7 @@ export default function ContactScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="YYYY-MM-DD"
-                placeholderTextColor="#888"
+                placeholderTextColor="#555"
                 value={callData.preferredDate}
                 onChangeText={(text) => setCallData({ ...callData, preferredDate: text })}
               />
@@ -257,7 +257,7 @@ export default function ContactScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="e.g., 10:00 AM - 12:00 PM"
-                placeholderTextColor="#888"
+                placeholderTextColor="#555"
                 value={callData.preferredTime}
                 onChangeText={(text) => setCallData({ ...callData, preferredTime: text })}
               />
@@ -270,7 +270,7 @@ export default function ContactScreen() {
               <TextInput
                 style={[styles.input, styles.textArea]}
                 placeholder="Tell us what you'd like to discuss..."
-                placeholderTextColor="#888"
+                placeholderTextColor="#555"
                 value={callData.notes}
                 onChangeText={(text) => setCallData({ ...callData, notes: text })}
                 multiline
@@ -372,7 +372,7 @@ export default function ContactScreen() {
             <TextInput
               style={styles.input}
               placeholder="Brief description of the issue"
-              placeholderTextColor="#888"
+              placeholderTextColor="#555"
               value={ticketData.subject}
               onChangeText={(text) => setTicketData({ ...ticketData, subject: text })}
             />
@@ -385,7 +385,7 @@ export default function ContactScreen() {
             <TextInput
               style={[styles.input, styles.textArea]}
               placeholder="Please provide details about the issue, including device type, error messages, and when it started..."
-              placeholderTextColor="#888"
+              placeholderTextColor="#555"
               value={ticketData.description}
               onChangeText={(text) => setTicketData({ ...ticketData, description: text })}
               multiline
@@ -557,7 +557,7 @@ const styles = StyleSheet.create({
     height: 52,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#FFFFFF',
+    color: '#1A1A1A',
   },
   textAreaWrapper: {
     alignItems: 'flex-start',

@@ -105,7 +105,7 @@ export default function RegisterScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="Choose a username"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="#555"
                   value={formData.username}
                   onChangeText={(value) => updateFormData('username', value)}
                   autoCapitalize="none"
@@ -121,7 +121,7 @@ export default function RegisterScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="Enter your email"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="#555"
                   value={formData.email}
                   onChangeText={(value) => updateFormData('email', value)}
                   autoCapitalize="none"
@@ -138,7 +138,7 @@ export default function RegisterScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="Enter your full name"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="#555"
                   value={formData.fullName}
                   onChangeText={(value) => updateFormData('fullName', value)}
                   autoCapitalize="words"
@@ -153,7 +153,7 @@ export default function RegisterScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="Enter your phone number"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="#555"
                   value={formData.phone}
                   onChangeText={(value) => updateFormData('phone', value)}
                   keyboardType="phone-pad"
@@ -168,7 +168,7 @@ export default function RegisterScreen() {
                 <TextInput
                   style={[styles.input, styles.passwordInput]}
                   placeholder="Create a password"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="#555"
                   value={formData.password}
                   onChangeText={(value) => updateFormData('password', value)}
                   secureTextEntry={!showPassword}
@@ -194,7 +194,7 @@ export default function RegisterScreen() {
                 <TextInput
                   style={[styles.input, styles.passwordInput]}
                   placeholder="Confirm your password"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="#555"
                   value={formData.confirmPassword}
                   onChangeText={(value) => updateFormData('confirmPassword', value)}
                   secureTextEntry={!showConfirmPassword}

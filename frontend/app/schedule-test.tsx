@@ -114,7 +114,7 @@ export default function ScheduleTestScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="YYYY-MM-DD"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="#555"
                   value={formData.preferredDate}
                   onChangeText={(text) => setFormData({ ...formData, preferredDate: text })}
                 />
@@ -133,7 +133,7 @@ export default function ScheduleTestScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="e.g., 10:00 AM - 12:00 PM"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="#555"
                   value={formData.preferredTime}
                   onChangeText={(text) => setFormData({ ...formData, preferredTime: text })}
                 />
@@ -146,7 +146,7 @@ export default function ScheduleTestScreen() {
                 <TextInput
                   style={[styles.input, styles.textArea]}
                   placeholder="Any specific health concerns or questions?"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="#555"
                   value={formData.notes}
                   onChangeText={(text) => setFormData({ ...formData, notes: text })}
                   multiline
