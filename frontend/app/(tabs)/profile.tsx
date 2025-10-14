@@ -22,6 +22,22 @@ export default function ProfileScreen() {
   const [devices, setDevices] = useState<any[]>([]);
   const [isLoadingDevices, setIsLoadingDevices] = useState(true);
 
+  useEffect(() => {
+    loadDevices();
+  }, []);
+
+  const loadDevices = async () => {
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(`${API_URL}/user/devices`, { headers });
+      setDevices(response.data.devices);
+    } catch (error) {
+      console.error('Error loading devices:', error);
+    } finally {
+      setIsLoadingDevices(false);
+    }
+  };
+
   const handleLogout = () => {
     Alert.alert(
       'Logout',
