@@ -42,37 +42,26 @@ class BackendTester:
         if details and not success:
             print(f"   Details: {details}")
     
-    def admin_login(self):
-        """Test admin authentication"""
+    def test_user_login(self):
+        """Test user login with john@example.com"""
         try:
-            response = self.make_request('POST', '/auth/login', {
-                "identifier": "admin@hybridhuman.com",
-                "password": "admin123"
+            response = self.session.post(f"{API_BASE}/auth/login", json={
+                "identifier": "john@example.com",
+                "password": "password123"
             })
             
-            if response and response.status_code == 200:
+            if response.status_code == 200:
                 data = response.json()
-                self.admin_token = data["access_token"]
-                admin_role = data["user"]["role"]
-                
-                if admin_role == "admin":
-                    self.log_result("Admin Authentication", True, f"Admin logged in successfully with role: {admin_role}")
-                    return True
-                else:
-                    self.log_result("Admin Authentication", False, f"User role is {admin_role}, not admin")
-                    return False
+                self.user_token = data["access_token"]
+                self.session.headers.update({"Authorization": f"Bearer {self.user_token}"})
+                self.log_result("User Login", True, "Successfully logged in as john@example.com")
+                return True
             else:
-                error_msg = f"Status: {response.status_code if response else 'No response'}"
-                if response:
-                    try:
-                        error_msg += f", Error: {response.json()}"
-                    except:
-                        error_msg += f", Text: {response.text}"
-                self.log_result("Admin Authentication", False, error_msg)
+                self.log_result("User Login", False, f"Login failed with status {response.status_code}", response.text)
                 return False
                 
         except Exception as e:
-            self.log_result("Admin Authentication", False, f"Exception: {str(e)}")
+            self.log_result("User Login", False, f"Login request failed: {str(e)}")
             return False
     
     def user_login(self):
