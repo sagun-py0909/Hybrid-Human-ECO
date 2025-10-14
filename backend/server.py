@@ -116,6 +116,7 @@ class TicketCreate(BaseModel):
     type: str
     subject: str
     description: str
+    productId: Optional[str] = None
 
 class CallRequest(BaseModel):
     userId: str
