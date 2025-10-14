@@ -24,6 +24,7 @@ export default function ContactScreen() {
   const { token } = useAuth();
   const [selectedType, setSelectedType] = useState<ContactType>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [userDevices, setUserDevices] = useState<any[]>([]);
 
   // Program-related (schedule call) state
   const [callData, setCallData] = useState({
@@ -36,7 +37,24 @@ export default function ContactScreen() {
   const [ticketData, setTicketData] = useState({
     subject: '',
     description: '',
+    productId: '',
   });
+
+  useEffect(() => {
+    if (selectedType === 'machine') {
+      loadUserDevices();
+    }
+  }, [selectedType]);
+
+  const loadUserDevices = async () => {
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(`${API_URL}/user/devices`, { headers });
+      setUserDevices(response.data.devices);
+    } catch (error) {
+      console.error('Error loading devices:', error);
+    }
+  };
 
   const handleSubmitCall = async () => {
     if (!callData.preferredDate || !callData.preferredTime) {
