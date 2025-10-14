@@ -937,8 +937,53 @@ async def create_user_by_admin(user_data: UserCreate, current_user: dict = Depen
 
 @api_router.get("/user/devices")
 async def get_user_devices(current_user: dict = Depends(get_current_user)):
-    """Get current user's devices"""
-    return {"devices": current_user.get("devices", [])}
+    """Get current user's devices with details"""
+    device_names = current_user.get("devices", [])
+    devices_with_info = []
+    
+    for device_name in device_names:
+        # Get product info
+        product = await db.products.find_one({"name": device_name})
+        
+        # Get usage stats for this device
+        usage_records = await db.device_usage.find({
+            "userId": ObjectId(current_user["_id"]),
+            "deviceType": device_name
+        }).to_list(1000)
+        
+        total_sessions = len(usage_records)
+        total_minutes = sum(record.get("duration", 0) for record in usage_records)
+        
+        device_info = {
+            "name": device_name,
+            "description": product.get("description", "") if product else "",
+            "category": product.get("category", "Other") if product else "Other",
+            "totalSessions": total_sessions,
+            "totalMinutes": total_minutes
+        }
+        devices_with_info.append(device_info)
+    
+    return {"devices": devices_with_info}
+
+@api_router.get("/user/devices/{device_name}/usage")
+async def get_device_usage_logs(device_name: str, current_user: dict = Depends(get_current_user)):
+    """Get usage logs for a specific device"""
+    usage_records = await db.device_usage.find({
+        "userId": ObjectId(current_user["_id"]),
+        "deviceType": device_name
+    }).sort("date", -1).limit(100).to_list(100)
+    
+    # Get product info
+    product = await db.products.find_one({"name": device_name})
+    
+    for record in usage_records:
+        record["userId"] = str(record["userId"])
+    
+    return {
+        "deviceName": device_name,
+        "product": serialize_doc(product) if product else None,
+        "usageLogs": [serialize_doc(r) for r in usage_records]
+    }
 
 # Include the router in the main app
 app.include_router(api_router)
