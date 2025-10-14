@@ -153,6 +153,18 @@ backend:
           agent: "testing"
           comment: "Ticket system working correctly. POST /api/tickets creates tickets successfully, GET /api/tickets/my retrieves user tickets. Admin can view all tickets and update status."
 
+  - task: "Product Selection for Machine Tickets"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Backend updated to accept productId in ticket creation. TicketCreate model includes optional productId field, and create_ticket endpoint saves it to database. Ready for backend testing."
+
   - task: "Call Request System"
     implemented: true
     working: true
