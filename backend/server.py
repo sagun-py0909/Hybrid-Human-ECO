@@ -169,6 +169,30 @@ class BulkProgramCreate(BaseModel):
     startDate: str
     weeks: int  # Duration in weeks
 
+class Product(BaseModel):
+    name: str
+    description: str
+    category: str
+    serialNumber: Optional[str] = None
+    purchaseDate: Optional[str] = None
+
+class ProductCreate(BaseModel):
+    name: str
+    description: str
+    category: str
+
+class UserCreate(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+    fullName: str
+    phone: Optional[str] = None
+    role: str = "user"
+    devices: List[str] = []
+
+class UserDevicesUpdate(BaseModel):
+    devices: List[str]
+
 class UserStats(BaseModel):
     totalTasks: int
     completedTasks: int
