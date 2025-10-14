@@ -220,7 +220,7 @@ export default function ContactScreen() {
       >
         <ScrollView
           style={styles.formContainer}
-          contentContainerStyle={styles.formContent}
+          contentContainerStyle={[styles.formContent, { paddingBottom: 100 }]}
           keyboardShouldPersistTaps="handled"
         >
           <TouchableOpacity
