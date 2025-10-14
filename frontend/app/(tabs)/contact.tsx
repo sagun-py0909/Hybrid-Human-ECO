@@ -353,11 +353,11 @@ export default function ContactScreen() {
                 dropdownIconColor="#8FBC8F"
               >
                 <Picker.Item label="-- Select a device --" value="" />
-                {userDevices.map((device) => (
+                {userDevices.map((device, index) => (
                   <Picker.Item
-                    key={device._id}
-                    label={`${device.productName}${device.serialNumber ? ` (${device.serialNumber})` : ''}`}
-                    value={device.productId}
+                    key={`device-${index}`}
+                    label={device.name}
+                    value={device.name}
                   />
                 ))}
               </Picker>
