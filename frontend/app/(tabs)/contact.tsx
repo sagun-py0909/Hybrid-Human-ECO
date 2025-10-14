@@ -368,7 +368,7 @@ export default function ContactScreen() {
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Subject *</Text>
           <View style={styles.inputWrapper}>
-            <Ionicons name="document-text-outline" size={20} color="#8FBC8F" style={styles.inputIcon} />
+            <Ionicons name="document-text-outline" size={20} color="#556B2F" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Brief description of the issue"
