@@ -145,7 +145,7 @@ export default function ScheduleScreen() {
       {/* Tasks List */}
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#8FBC8F" />
+          <ActivityIndicator size="large" color="#556B2F" />
         </View>
       ) : (
         <ScrollView style={styles.tasksList} contentContainerStyle={styles.tasksContent}>
