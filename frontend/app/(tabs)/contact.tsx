@@ -145,7 +145,7 @@ export default function ContactScreen() {
   if (selectedType === null) {
     return (
       <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.optionsContainer}>
+        <ScrollView contentContainerStyle={[styles.optionsContainer, { paddingBottom: 100 }]}>
           <Text style={styles.headerTitle}>How can we help you?</Text>
           <Text style={styles.headerSubtitle}>
             Choose the type of support you need
