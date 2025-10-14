@@ -223,7 +223,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#FAF0DC',
   },
   contentContainer: {
     padding: 20,
@@ -232,20 +232,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#FAF0DC',
   },
   welcomeSection: {
     marginBottom: 24,
   },
   welcomeText: {
     fontSize: 16,
-    color: '#999',
+    color: '#4A4A4A',
     marginBottom: 4,
   },
   userName: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
   },
   quoteCard: {
     padding: 20,
