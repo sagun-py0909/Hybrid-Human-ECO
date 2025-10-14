@@ -421,7 +421,7 @@ export default function ContactScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#FAF0DC',
   },
   optionsContainer: {
     padding: 20,
@@ -429,27 +429,31 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#999',
+    color: '#4A4A4A',
     marginBottom: 32,
   },
   optionCard: {
     marginBottom: 20,
     borderRadius: 16,
     overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0D5C0',
   },
   optionGradient: {
     padding: 24,
+    backgroundColor: '#FFFFFF',
   },
   optionIcon: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#F0E6D0',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -457,12 +461,12 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 8,
   },
   optionDescription: {
     fontSize: 14,
-    color: '#999',
+    color: '#4A4A4A',
     lineHeight: 20,
     marginBottom: 16,
   },
@@ -473,13 +477,13 @@ const styles = StyleSheet.create({
   optionActionText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#8FBC8F',
+    color: '#556B2F',
     marginRight: 8,
   },
   emergencyCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFF5E6',
     padding: 20,
     borderRadius: 12,
     marginTop: 16,
@@ -493,7 +497,7 @@ const styles = StyleSheet.create({
   emergencyTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 4,
   },
   emergencyText: {
@@ -514,18 +518,18 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginLeft: 8,
   },
   formTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 8,
   },
   formSubtitle: {
     fontSize: 14,
-    color: '#999',
+    color: '#4A4A4A',
     marginBottom: 32,
   },
   inputGroup: {
@@ -534,16 +538,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 8,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#D0C5B0',
   },
   inputIcon: {
     marginLeft: 16,
@@ -553,7 +557,7 @@ const styles = StyleSheet.create({
     height: 52,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#E8E8E8',
+    color: '#1A1A1A',
   },
   textAreaWrapper: {
     alignItems: 'flex-start',
