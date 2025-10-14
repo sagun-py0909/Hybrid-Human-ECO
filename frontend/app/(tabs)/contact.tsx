@@ -23,11 +23,11 @@ const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL + '/api';
 type ContactType = 'program' | 'machine' | null;
 
 interface Device {
-  _id: string;
-  productId: string;
-  productName: string;
-  model?: string;
-  serialNumber?: string;
+  name: string;
+  description: string;
+  category: string;
+  totalSessions: number;
+  totalMinutes: number;
 }
 
 export default function ContactScreen() {
