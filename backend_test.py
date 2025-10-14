@@ -20,50 +20,27 @@ API_BASE = f"{BACKEND_URL}/api"
 
 print(f"Testing Product Selection for Machine Tickets at: {API_BASE}")
 
-class AdminPanelCRUDTester:
+class BackendTester:
     def __init__(self):
-        self.admin_token = None
+        self.session = requests.Session()
         self.user_token = None
-        self.john_user_id = None
+        self.admin_token = None
         self.test_results = []
         
-    def log_result(self, test_name, success, details=""):
-        """Log test result"""
-        status = "✅ PASS" if success else "❌ FAIL"
-        self.test_results.append({
+    def log_result(self, test_name, success, message, details=None):
+        """Log test results"""
+        result = {
             "test": test_name,
-            "status": status,
             "success": success,
-            "details": details
-        })
-        print(f"{status}: {test_name}")
-        if details:
+            "message": message,
+            "details": details,
+            "timestamp": datetime.now().isoformat()
+        }
+        self.test_results.append(result)
+        status = "✅ PASS" if success else "❌ FAIL"
+        print(f"{status}: {test_name} - {message}")
+        if details and not success:
             print(f"   Details: {details}")
-    
-    def make_request(self, method, endpoint, data=None, token=None):
-        """Make HTTP request with proper headers"""
-        url = f"{API_BASE}{endpoint}"
-        headers = {'Content-Type': 'application/json'}
-        
-        if token:
-            headers['Authorization'] = f'Bearer {token}'
-            
-        try:
-            if method.upper() == 'GET':
-                response = requests.get(url, headers=headers, timeout=30)
-            elif method.upper() == 'POST':
-                response = requests.post(url, headers=headers, json=data, timeout=30)
-            elif method.upper() == 'PUT':
-                response = requests.put(url, headers=headers, json=data, timeout=30)
-            elif method.upper() == 'DELETE':
-                response = requests.delete(url, headers=headers, timeout=30)
-            else:
-                raise ValueError(f"Unsupported method: {method}")
-                
-            return response
-        except requests.exceptions.RequestException as e:
-            print(f"Request failed: {e}")
-            return None
     
     def admin_login(self):
         """Test admin authentication"""
