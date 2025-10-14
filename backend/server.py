@@ -1056,4 +1056,43 @@ async def seed_database():
             await db.device_usage.insert_one(usage)
         
         logger.info("Sample device usage logs created")
+        
+        # Create default products
+        products_exist = await db.products.count_documents({})
+        if products_exist == 0:
+            default_products = [
+                {
+                    "name": "Cryotherapy Chamber",
+                    "description": "Full body cryotherapy chamber for recovery and anti-aging",
+                    "category": "Cryotherapy",
+                    "createdAt": datetime.utcnow()
+                },
+                {
+                    "name": "Red Light Sauna",
+                    "description": "Infrared red light therapy sauna for cellular regeneration",
+                    "category": "Light Therapy",
+                    "createdAt": datetime.utcnow()
+                },
+                {
+                    "name": "Compression Therapy System",
+                    "description": "Pneumatic compression device for circulation and recovery",
+                    "category": "Recovery",
+                    "createdAt": datetime.utcnow()
+                },
+                {
+                    "name": "Hyperbaric Oxygen Chamber",
+                    "description": "Pressurized oxygen therapy chamber",
+                    "category": "Oxygen Therapy",
+                    "createdAt": datetime.utcnow()
+                },
+                {
+                    "name": "Cold Plunge Pool",
+                    "description": "Temperature-controlled cold water immersion therapy",
+                    "category": "Cold Therapy",
+                    "createdAt": datetime.utcnow()
+                }
+            ]
+            await db.products.insert_many(default_products)
+            logger.info("Default products created")
+        
         logger.info("Database seeding completed!")
