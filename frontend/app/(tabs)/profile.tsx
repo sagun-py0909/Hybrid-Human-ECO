@@ -121,7 +121,7 @@ export default function ProfileScreen() {
       {isLoadingDevices ? (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>My Devices</Text>
-          <ActivityIndicator size="small" color="#8FBC8F" />
+          <ActivityIndicator size="small" color="#556B2F" />
         </View>
       ) : devices.length > 0 ? (
         <View style={styles.section}>
