@@ -851,6 +851,95 @@ async def upload_report(report_data: ReportUpload, current_user: dict = Depends(
     result = await db.reports.insert_one(report_dict)
     return {"id": str(result.inserted_id), "message": "Report uploaded successfully"}
 
+# ============= PRODUCT MANAGEMENT ROUTES =============
+
+@api_router.get("/admin/products", dependencies=[Depends(get_admin_user)])
+async def get_all_products():
+    """Get all products"""
+    products = await db.products.find({}).to_list(1000)
+    return [serialize_doc(p) for p in products]
+
+@api_router.post("/admin/products", dependencies=[Depends(get_admin_user)])
+async def create_product(product: ProductCreate, current_user: dict = Depends(get_admin_user)):
+    """Create a new product"""
+    product_dict = product.dict()
+    product_dict["createdAt"] = datetime.utcnow()
+    product_dict["createdBy"] = current_user["_id"]
+    
+    result = await db.products.insert_one(product_dict)
+    return {"id": str(result.inserted_id), "message": "Product created successfully"}
+
+@api_router.put("/admin/products/{product_id}", dependencies=[Depends(get_admin_user)])
+async def update_product(product_id: str, product: ProductCreate):
+    """Update a product"""
+    result = await db.products.update_one(
+        {"_id": ObjectId(product_id)},
+        {"$set": product.dict()}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    return {"message": "Product updated successfully"}
+
+@api_router.delete("/admin/products/{product_id}", dependencies=[Depends(get_admin_user)])
+async def delete_product(product_id: str):
+    """Delete a product"""
+    result = await db.products.delete_one({"_id": ObjectId(product_id)})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    return {"message": "Product deleted successfully"}
+
+@api_router.put("/admin/users/{user_id}/devices", dependencies=[Depends(get_admin_user)])
+async def update_user_devices(user_id: str, devices_data: UserDevicesUpdate):
+    """Update user's devices"""
+    result = await db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"devices": devices_data.devices}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "User devices updated successfully"}
+
+@api_router.post("/admin/users/create", dependencies=[Depends(get_admin_user)])
+async def create_user_by_admin(user_data: UserCreate, current_user: dict = Depends(get_admin_user)):
+    """Create a new user (admin only)"""
+    # Check if user exists
+    existing_user = await db.users.find_one({
+        "$or": [{"username": user_data.username}, {"email": user_data.email}]
+    })
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username or email already exists")
+    
+    # Create user
+    user_dict = {
+        "username": user_data.username,
+        "email": user_data.email,
+        "password": hash_password(user_data.password),
+        "fullName": user_data.fullName,
+        "phone": user_data.phone,
+        "role": user_data.role,
+        "devices": user_data.devices,
+        "createdAt": datetime.utcnow()
+    }
+    
+    result = await db.users.insert_one(user_dict)
+    return {
+        "id": str(result.inserted_id),
+        "message": "User created successfully",
+        "username": user_data.username,
+        "email": user_data.email
+    }
+
+@api_router.get("/user/devices")
+async def get_user_devices(current_user: dict = Depends(get_current_user)):
+    """Get current user's devices"""
+    return {"devices": current_user.get("devices", [])}
+
 # Include the router in the main app
 app.include_router(api_router)
 
