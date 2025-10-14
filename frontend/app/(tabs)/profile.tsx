@@ -13,8 +13,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
 
 export default function ProfileScreen() {
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout, isAdmin, token } = useAuth();
   const router = useRouter();
+  const [devices, setDevices] = useState<any[]>([]);
+  const [isLoadingDevices, setIsLoadingDevices] = useState(true);
 
   const handleLogout = () => {
     Alert.alert(
