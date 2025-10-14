@@ -89,7 +89,7 @@ export default function HomeScreen() {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={styles.contentContainer}
+      contentContainerStyle={[styles.contentContainer, { paddingBottom: 100 }]}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
