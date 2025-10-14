@@ -65,10 +65,10 @@ export default function DeviceDetailsScreen() {
         options={{
           title: 'Device Details',
           headerStyle: { backgroundColor: '#000000' },
-          headerTintColor: '#E8E8E8',
+          headerTintColor: '#1A1A1A',
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={styles.headerButton}>
-              <Ionicons name="arrow-back" size={24} color="#E8E8E8" />
+              <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
             </TouchableOpacity>
           ),
         }}
@@ -104,7 +104,7 @@ export default function DeviceDetailsScreen() {
         {/* Usage Statistics */}
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
-            <LinearGradient colors={['#1A1A1A', '#2A2A2A']} style={styles.statCardGradient}>
+            <LinearGradient colors={['#FFFFFF', '#D0C5B0']} style={styles.statCardGradient}>
               <Ionicons name="repeat" size={28} color="#8FBC8F" />
               <Text style={styles.statValue}>{totalSessions}</Text>
               <Text style={styles.statLabel}>Total Sessions</Text>
@@ -112,7 +112,7 @@ export default function DeviceDetailsScreen() {
           </View>
 
           <View style={styles.statCard}>
-            <LinearGradient colors={['#1A1A1A', '#2A2A2A']} style={styles.statCardGradient}>
+            <LinearGradient colors={['#FFFFFF', '#D0C5B0']} style={styles.statCardGradient}>
               <Ionicons name="time" size={28} color="#4ECDC4" />
               <Text style={styles.statValue}>{totalMinutes}</Text>
               <Text style={styles.statLabel}>Total Minutes</Text>
@@ -120,7 +120,7 @@ export default function DeviceDetailsScreen() {
           </View>
 
           <View style={styles.statCard}>
-            <LinearGradient colors={['#1A1A1A', '#2A2A2A']} style={styles.statCardGradient}>
+            <LinearGradient colors={['#FFFFFF', '#D0C5B0']} style={styles.statCardGradient}>
               <Ionicons name="speedometer" size={28} color="#FFD700" />
               <Text style={styles.statValue}>{averageDuration}</Text>
               <Text style={styles.statLabel}>Avg Duration</Text>
@@ -142,12 +142,12 @@ export default function DeviceDetailsScreen() {
                 </View>
                 <View style={styles.logBody}>
                   <View style={styles.logDetail}>
-                    <Ionicons name="timer" size={16} color="#999" />
+                    <Ionicons name="timer" size={16} color="#4A4A4A" />
                     <Text style={styles.logText}>{log.duration} minutes</Text>
                   </View>
                   {log.notes && (
                     <View style={styles.logDetail}>
-                      <Ionicons name="document-text" size={16} color="#999" />
+                      <Ionicons name="document-text" size={16} color="#4A4A4A" />
                       <Text style={styles.logText}>{log.notes}</Text>
                     </View>
                   )}
@@ -156,7 +156,7 @@ export default function DeviceDetailsScreen() {
             ))
           ) : (
             <View style={styles.emptyState}>
-              <Ionicons name="bar-chart-outline" size={64} color="#666" />
+              <Ionicons name="bar-chart-outline" size={64} color="#888" />
               <Text style={styles.emptyText}>No usage history yet</Text>
               <Text style={styles.emptySubtext}>
                 Your usage logs will appear here after your first session
@@ -172,7 +172,7 @@ export default function DeviceDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#FAF0DC',
   },
   headerButton: {
     padding: 8,
@@ -221,22 +221,22 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   descriptionCard: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     margin: 20,
     padding: 20,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#D0C5B0',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 12,
   },
   descriptionText: {
     fontSize: 15,
-    color: '#CCC',
+    color: '#AAA',
     lineHeight: 22,
   },
   statsContainer: {
@@ -256,12 +256,12 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginTop: 8,
   },
   statLabel: {
     fontSize: 12,
-    color: '#999',
+    color: '#4A4A4A',
     marginTop: 4,
     textAlign: 'center',
   },
@@ -269,12 +269,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   logCard: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#D0C5B0',
   },
   logHeader: {
     flexDirection: 'row',
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   },
   logText: {
     fontSize: 14,
-    color: '#CCC',
+    color: '#AAA',
     marginLeft: 8,
   },
   emptyState: {
@@ -307,13 +307,13 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#999',
+    color: '#4A4A4A',
     marginTop: 16,
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#666',
+    color: '#888',
     textAlign: 'center',
   },
 });

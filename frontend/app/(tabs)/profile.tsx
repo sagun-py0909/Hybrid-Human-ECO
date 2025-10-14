@@ -144,7 +144,7 @@ export default function ProfileScreen() {
                   </Text>
                 )}
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#666" />
+              <Ionicons name="chevron-forward" size={20} color="#888" />
             </TouchableOpacity>
           ))}
         </View>
@@ -166,7 +166,7 @@ export default function ProfileScreen() {
               <Text style={styles.menuTitle}>{item.title}</Text>
               <Text style={styles.menuDescription}>{item.description}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#666" />
+            <Ionicons name="chevron-forward" size={20} color="#888" />
           </TouchableOpacity>
         ))}
       </View>
@@ -189,7 +189,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#FAF0DC',
   },
   contentContainer: {
     padding: 20,
@@ -224,12 +224,12 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 14,
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 4,
   },
   userPhone: {
     fontSize: 14,
-    color: '#E8E8E8',
+    color: '#1A1A1A',
   },
   adminBadge: {
     flexDirection: 'row',
@@ -252,24 +252,24 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 16,
   },
   deviceCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#D0C5B0',
   },
   deviceIconContainer: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#2A2A2A',
+    backgroundColor: '#D0C5B0',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   deviceName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 4,
   },
   deviceCategory: {
@@ -290,12 +290,12 @@ const styles = StyleSheet.create({
   },
   deviceStats: {
     fontSize: 12,
-    color: '#999',
+    color: '#4A4A4A',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -314,18 +314,18 @@ const styles = StyleSheet.create({
   menuTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 4,
   },
   menuDescription: {
     fontSize: 13,
-    color: '#999',
+    color: '#4A4A4A',
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     padding: 16,
     borderRadius: 12,
     marginBottom: 24,
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   },
   appInfoText: {
     fontSize: 12,
-    color: '#666',
+    color: '#888',
     marginBottom: 4,
   },
 });

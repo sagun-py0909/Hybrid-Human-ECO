@@ -119,7 +119,7 @@ export default function HomeScreen() {
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <LinearGradient
-            colors={['#1A1A1A', '#2A2A2A']}
+            colors={['#FFFFFF', '#D0C5B0']}
             style={styles.statCardGradient}
           >
             <Ionicons name="checkmark-circle" size={32} color="#8FBC8F" />
@@ -130,7 +130,7 @@ export default function HomeScreen() {
 
         <View style={styles.statCard}>
           <LinearGradient
-            colors={['#1A1A1A', '#2A2A2A']}
+            colors={['#FFFFFF', '#D0C5B0']}
             style={styles.statCardGradient}
           >
             <Ionicons name="flame" size={32} color="#FF6B35" />
@@ -141,7 +141,7 @@ export default function HomeScreen() {
 
         <View style={styles.statCard}>
           <LinearGradient
-            colors={['#1A1A1A', '#2A2A2A']}
+            colors={['#FFFFFF', '#D0C5B0']}
             style={styles.statCardGradient}
           >
             <Ionicons name="timer" size={32} color="#4ECDC4" />
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   quoteCard: {
     padding: 20,
@@ -278,16 +278,16 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginTop: 8,
   },
   statLabel: {
     fontSize: 12,
-    color: '#999',
+    color: '#4A4A4A',
     marginTop: 4,
   },
   progressCard: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     padding: 20,
     borderRadius: 16,
     marginBottom: 24,
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   progressTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
   },
   progressPercentage: {
     fontSize: 24,
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   },
   progressBarContainer: {
     height: 8,
-    backgroundColor: '#2A2A2A',
+    backgroundColor: '#D0C5B0',
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 8,
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   },
   progressSubtext: {
     fontSize: 12,
-    color: '#999',
+    color: '#4A4A4A',
   },
   sectionContainer: {
     marginBottom: 24,
@@ -329,13 +329,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 16,
   },
   taskCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#2A2A2A',
+    backgroundColor: '#D0C5B0',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -355,15 +355,15 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 4,
   },
   taskMeta: {
     fontSize: 13,
-    color: '#999',
+    color: '#4A4A4A',
   },
   taskBadge: {
-    backgroundColor: '#2A2A2A',
+    backgroundColor: '#D0C5B0',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
@@ -374,20 +374,20 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   emptyCard: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     padding: 40,
     borderRadius: 12,
     alignItems: 'center',
   },
   emptyText: {
     fontSize: 14,
-    color: '#999',
+    color: '#4A4A4A',
     marginTop: 12,
   },
   usageCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -399,12 +399,12 @@ const styles = StyleSheet.create({
   usageDevice: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 2,
   },
   usageTime: {
     fontSize: 12,
-    color: '#999',
+    color: '#4A4A4A',
   },
   usageDuration: {
     fontSize: 16,

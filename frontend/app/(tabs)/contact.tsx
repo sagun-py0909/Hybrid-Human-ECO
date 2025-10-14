@@ -157,7 +157,7 @@ export default function ContactScreen() {
             onPress={() => setSelectedType('program')}
           >
             <LinearGradient
-              colors={['#1A1A1A', '#2A2A2A']}
+              colors={['#FFFFFF', '#D0C5B0']}
               style={styles.optionGradient}
             >
               <View style={styles.optionIcon}>
@@ -181,7 +181,7 @@ export default function ContactScreen() {
             onPress={() => setSelectedType('machine')}
           >
             <LinearGradient
-              colors={['#1A1A1A', '#2A2A2A']}
+              colors={['#FFFFFF', '#D0C5B0']}
               style={styles.optionGradient}
             >
               <View style={styles.optionIcon}>
@@ -227,7 +227,7 @@ export default function ContactScreen() {
             style={styles.backButton}
             onPress={() => setSelectedType(null)}
           >
-            <Ionicons name="arrow-back" size={24} color="#E8E8E8" />
+            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
             <Text style={styles.backButtonText}>Back</Text>
           </TouchableOpacity>
 
@@ -318,7 +318,7 @@ export default function ContactScreen() {
           style={styles.backButton}
           onPress={() => setSelectedType(null)}
         >
-          <Ionicons name="arrow-back" size={24} color="#E8E8E8" />
+          <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
 
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   headerSubtitle: {
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   optionDescription: {
@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
   emergencyTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   emergencyText: {
@@ -518,13 +518,13 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginLeft: 8,
   },
   formTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   formSubtitle: {
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   inputWrapper: {
@@ -557,7 +557,7 @@ const styles = StyleSheet.create({
     height: 52,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   textAreaWrapper: {
     alignItems: 'flex-start',
@@ -590,7 +590,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   picker: {
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     height: 52,
   },
   loadingContainer: {
@@ -618,7 +618,7 @@ const styles = StyleSheet.create({
   },
   noDevicesText: {
     fontSize: 14,
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginLeft: 12,
     flex: 1,
     lineHeight: 20,

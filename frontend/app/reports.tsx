@@ -53,10 +53,10 @@ export default function ReportsScreen() {
         options={{
           title: 'My Reports',
           headerStyle: { backgroundColor: '#000000' },
-          headerTintColor: '#E8E8E8',
+          headerTintColor: '#1A1A1A',
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={styles.headerButton}>
-              <Ionicons name="arrow-back" size={24} color="#E8E8E8" />
+              <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
             </TouchableOpacity>
           ),
         }}
@@ -84,13 +84,13 @@ export default function ReportsScreen() {
                   {format(new Date(report.date), 'MMM d, yyyy')}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#666" />
+              <Ionicons name="chevron-forward" size={20} color="#888" />
             </TouchableOpacity>
           ))}
         </ScrollView>
       ) : (
         <View style={styles.emptyContainer}>
-          <Ionicons name="folder-open-outline" size={80} color="#666" />
+          <Ionicons name="folder-open-outline" size={80} color="#888" />
           <Text style={styles.emptyTitle}>No Reports Yet</Text>
           <Text style={styles.emptyText}>
             Your test results and health reports will appear here
@@ -104,7 +104,7 @@ export default function ReportsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#FAF0DC',
   },
   headerButton: {
     padding: 8,
@@ -124,18 +124,18 @@ const styles = StyleSheet.create({
   reportCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#D0C5B0',
   },
   reportIconContainer: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#2A2A2A',
+    backgroundColor: '#D0C5B0',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   reportTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 4,
   },
   reportType: {
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   },
   reportDate: {
     fontSize: 12,
-    color: '#999',
+    color: '#4A4A4A',
   },
   emptyContainer: {
     flex: 1,
@@ -167,13 +167,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginTop: 24,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 14,
-    color: '#999',
+    color: '#4A4A4A',
     textAlign: 'center',
   },
 });

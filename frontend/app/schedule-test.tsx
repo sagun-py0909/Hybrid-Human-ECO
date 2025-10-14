@@ -72,10 +72,10 @@ export default function ScheduleTestScreen() {
         options={{
           title: 'Schedule a Test',
           headerStyle: { backgroundColor: '#000000' },
-          headerTintColor: '#E8E8E8',
+          headerTintColor: '#1A1A1A',
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={styles.headerButton}>
-              <Ionicons name="arrow-back" size={24} color="#E8E8E8" />
+              <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
             </TouchableOpacity>
           ),
         }}
@@ -114,7 +114,7 @@ export default function ScheduleTestScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="YYYY-MM-DD"
-                  placeholderTextColor="#666"
+                  placeholderTextColor="#888"
                   value={formData.preferredDate}
                   onChangeText={(text) => setFormData({ ...formData, preferredDate: text })}
                 />
@@ -133,7 +133,7 @@ export default function ScheduleTestScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="e.g., 10:00 AM - 12:00 PM"
-                  placeholderTextColor="#666"
+                  placeholderTextColor="#888"
                   value={formData.preferredTime}
                   onChangeText={(text) => setFormData({ ...formData, preferredTime: text })}
                 />
@@ -146,7 +146,7 @@ export default function ScheduleTestScreen() {
                 <TextInput
                   style={[styles.input, styles.textArea]}
                   placeholder="Any specific health concerns or questions?"
-                  placeholderTextColor="#666"
+                  placeholderTextColor="#888"
                   value={formData.notes}
                   onChangeText={(text) => setFormData({ ...formData, notes: text })}
                   multiline
@@ -184,7 +184,7 @@ export default function ScheduleTestScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#FAF0DC',
   },
   headerButton: {
     padding: 8,
@@ -200,24 +200,24 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   infoCard: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     padding: 24,
     borderRadius: 16,
     alignItems: 'center',
     marginBottom: 32,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#D0C5B0',
   },
   infoTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginTop: 16,
     marginBottom: 12,
   },
   infoText: {
     fontSize: 14,
-    color: '#999',
+    color: '#4A4A4A',
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -230,16 +230,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 8,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#D0C5B0',
   },
   inputIcon: {
     marginLeft: 16,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     height: 52,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#E8E8E8',
+    color: '#1A1A1A',
   },
   textAreaWrapper: {
     alignItems: 'flex-start',
