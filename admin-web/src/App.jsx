@@ -64,6 +64,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/products"
+          element={
+            <ProtectedRoute>
+              <Products />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AuthProvider>
