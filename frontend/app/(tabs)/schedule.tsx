@@ -148,7 +148,7 @@ export default function ScheduleScreen() {
           <ActivityIndicator size="large" color="#556B2F" />
         </View>
       ) : (
-        <ScrollView style={styles.tasksList} contentContainerStyle={styles.tasksContent}>
+        <ScrollView style={styles.tasksList} contentContainerStyle={[styles.tasksContent, { paddingBottom: 100 }]}>
           {getFilteredTasks().length > 0 ? (
             getFilteredTasks().map((task, index) => (
               <View key={index} style={styles.taskCard}>
