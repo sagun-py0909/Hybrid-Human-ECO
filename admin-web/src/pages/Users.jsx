@@ -24,8 +24,21 @@ const Users = () => {
   const [selectedDevices, setSelectedDevices] = useState([])
 
   useEffect(() => {
-    loadUsers()
+    loadData()
   }, [])
+
+  const loadData = async () => {
+    await Promise.all([loadUsers(), loadProducts()])
+  }
+
+  const loadProducts = async () => {
+    try {
+      const response = await api.get('/admin/products')
+      setProducts(response.data)
+    } catch (error) {
+      console.error('Error loading products:', error)
+    }
+  }
 
   const loadUsers = async () => {
     try {
