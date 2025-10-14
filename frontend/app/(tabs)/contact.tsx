@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Picker } from '@react-native-picker/picker';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 
@@ -20,11 +21,20 @@ const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL + '/api';
 
 type ContactType = 'program' | 'machine' | null;
 
+interface Device {
+  _id: string;
+  productId: string;
+  productName: string;
+  model?: string;
+  serialNumber?: string;
+}
+
 export default function ContactScreen() {
   const { token } = useAuth();
   const [selectedType, setSelectedType] = useState<ContactType>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [userDevices, setUserDevices] = useState<any[]>([]);
+  const [loadingDevices, setLoadingDevices] = useState(false);
+  const [userDevices, setUserDevices] = useState<Device[]>([]);
 
   // Program-related (schedule call) state
   const [callData, setCallData] = useState({
@@ -47,12 +57,16 @@ export default function ContactScreen() {
   }, [selectedType]);
 
   const loadUserDevices = async () => {
+    setLoadingDevices(true);
     try {
       const headers = { Authorization: `Bearer ${token}` };
       const response = await axios.get(`${API_URL}/user/devices`, { headers });
-      setUserDevices(response.data.devices);
+      setUserDevices(response.data.devices || []);
     } catch (error) {
       console.error('Error loading devices:', error);
+      Alert.alert('Error', 'Failed to load your devices');
+    } finally {
+      setLoadingDevices(false);
     }
   };
 
