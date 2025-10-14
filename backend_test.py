@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Admin Panel CRUD Operations Test Suite for Hybrid Human Application
-Tests all admin authentication, users, programs, reports, tickets, call requests, and analytics endpoints
+Backend API Testing for Product Selection in Machine Tickets
+Testing the Hybrid Human application backend endpoints
 """
 
 import requests
 import json
-import base64
-from datetime import datetime, timedelta
+import sys
+from datetime import datetime
 import os
 from dotenv import load_dotenv
 
@@ -18,7 +18,7 @@ load_dotenv('/app/frontend/.env')
 BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'https://hybrid-health.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 
-print(f"Testing Admin Panel CRUD Operations at: {API_BASE}")
+print(f"Testing Product Selection for Machine Tickets at: {API_BASE}")
 
 class AdminPanelCRUDTester:
     def __init__(self):
