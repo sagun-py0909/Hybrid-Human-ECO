@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 load_dotenv('/app/frontend/.env')
 
 # Get backend URL from environment
-BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'https://hybrid-human-1.preview.emergentagent.com')
+BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'https://hybrid-health.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 
 print(f"Testing Admin Panel CRUD Operations at: {API_BASE}")
