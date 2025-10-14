@@ -9,6 +9,7 @@ import Programs from './pages/Programs'
 import Reports from './pages/Reports'
 import Tickets from './pages/Tickets'
 import CallRequests from './pages/CallRequests'
+import Products from './pages/Products'
 
 function App() {
   return (
