@@ -481,6 +481,7 @@ async def create_ticket(ticket_data: TicketCreate, current_user: dict = Depends(
         "type": ticket_data.type,
         "subject": ticket_data.subject,
         "description": ticket_data.description,
+        "productId": ticket_data.productId,
         "status": "open",
         "priority": "medium",
         "createdAt": datetime.utcnow(),
