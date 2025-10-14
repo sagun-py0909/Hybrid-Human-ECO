@@ -4,11 +4,24 @@ import './Pages.css'
 
 const Users = () => {
   const [users, setUsers] = useState([])
+  const [products, setProducts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedUser, setSelectedUser] = useState(null)
   const [showProgressModal, setShowProgressModal] = useState(false)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showDevicesModal, setShowDevicesModal] = useState(false)
   const [userProgress, setUserProgress] = useState(null)
+  const [createFormData, setCreateFormData] = useState({
+    username: '',
+    email: '',
+    fullName: '',
+    phone: '',
+    password: 'Welcome@123',
+    role: 'user',
+    devices: []
+  })
+  const [selectedDevices, setSelectedDevices] = useState([])
 
   useEffect(() => {
     loadUsers()
