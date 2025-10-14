@@ -239,7 +239,7 @@ export default function ContactScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Preferred Date *</Text>
             <View style={styles.inputWrapper}>
-              <Ionicons name="calendar-outline" size={20} color="#8FBC8F" style={styles.inputIcon} />
+              <Ionicons name="calendar-outline" size={20} color="#556B2F" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="YYYY-MM-DD"
@@ -253,7 +253,7 @@ export default function ContactScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Preferred Time *</Text>
             <View style={styles.inputWrapper}>
-              <Ionicons name="time-outline" size={20} color="#8FBC8F" style={styles.inputIcon} />
+              <Ionicons name="time-outline" size={20} color="#556B2F" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="e.g., 10:00 AM - 12:00 PM"
