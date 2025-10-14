@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#1A1A1A',
     marginBottom: 8,
   },
   inputWrapper: {
