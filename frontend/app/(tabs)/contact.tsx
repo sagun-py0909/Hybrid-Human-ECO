@@ -326,6 +326,44 @@ export default function ContactScreen() {
           Report device issues or request technical support
         </Text>
 
+        {/* Device Selection */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Select Device *</Text>
+          {loadingDevices ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator color="#8FBC8F" />
+              <Text style={styles.loadingText}>Loading your devices...</Text>
+            </View>
+          ) : userDevices.length === 0 ? (
+            <View style={styles.noDevicesContainer}>
+              <Ionicons name="alert-circle-outline" size={24} color="#FF6B35" />
+              <Text style={styles.noDevicesText}>
+                No devices found. Please contact support to assign devices to your account.
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={ticketData.productId}
+                onValueChange={(value) =>
+                  setTicketData({ ...ticketData, productId: value })
+                }
+                style={styles.picker}
+                dropdownIconColor="#8FBC8F"
+              >
+                <Picker.Item label="-- Select a device --" value="" />
+                {userDevices.map((device) => (
+                  <Picker.Item
+                    key={device._id}
+                    label={`${device.productName}${device.serialNumber ? ` (${device.serialNumber})` : ''}`}
+                    value={device.productId}
+                  />
+                ))}
+              </Picker>
+            </View>
+          )}
+        </View>
+
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Subject *</Text>
           <View style={styles.inputWrapper}>
