@@ -255,27 +255,42 @@ const styles = StyleSheet.create({
     color: '#E8E8E8',
     marginBottom: 16,
   },
-  devicesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  deviceChip: {
+  deviceCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#1A1A1A',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 8,
-    marginBottom: 8,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: '#2A2A2A',
   },
-  deviceText: {
+  deviceIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#2A2A2A',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  deviceInfo: {
+    flex: 1,
+  },
+  deviceName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#E8E8E8',
+    marginBottom: 4,
+  },
+  deviceCategory: {
     fontSize: 13,
     color: '#8FBC8F',
-    marginLeft: 6,
-    fontWeight: '600',
+    marginBottom: 4,
+  },
+  deviceStats: {
+    fontSize: 12,
+    color: '#999',
   },
   menuItem: {
     flexDirection: 'row',
