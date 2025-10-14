@@ -240,7 +240,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Product Selection for Machine Tickets - Backend testing"
     - "Frontend Metro cache issue preventing reload"
   stuck_tasks:
     - "Frontend Metro bundler cache (CI mode issue)"
