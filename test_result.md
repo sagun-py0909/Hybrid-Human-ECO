@@ -155,15 +155,18 @@ backend:
 
   - task: "Product Selection for Machine Tickets"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Backend updated to accept productId in ticket creation. TicketCreate model includes optional productId field, and create_ticket endpoint saves it to database. Ready for backend testing."
+        - working: true
+          agent: "testing"
+          comment: "Product selection feature fully tested and working correctly. ✅ User login (john@example.com), ✅ Admin login, ✅ Get user devices (3 devices: Cryotherapy Chamber, Red Light Sauna, Compression Therapy), ✅ Create ticket with productId (ticket ID: 68ee97cb64783f029205dd24), ✅ Create ticket without productId (backward compatibility confirmed), ✅ Retrieve user tickets (6 total: 1 with productId, 5 without), ✅ Admin can view all tickets with productId. All 7 test cases passed (100% success rate). Backend productId functionality working as expected."
 
   - task: "Call Request System"
     implemented: true
