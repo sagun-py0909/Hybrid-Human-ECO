@@ -91,7 +91,7 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView style={styles.container} contentContainerStyle={[styles.contentContainer, { paddingBottom: 100 }]}>
       {/* User Profile Card */}
       <LinearGradient
         colors={['#556B2F', '#8FBC8F']}
