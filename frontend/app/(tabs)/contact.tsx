@@ -109,6 +109,11 @@ export default function ContactScreen() {
       return;
     }
 
+    if (!ticketData.productId) {
+      Alert.alert('Error', 'Please select a device');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const headers = { Authorization: `Bearer ${token}` };
@@ -118,6 +123,7 @@ export default function ContactScreen() {
           type: 'machine',
           subject: ticketData.subject,
           description: ticketData.description,
+          productId: ticketData.productId,
         },
         { headers }
       );
@@ -125,7 +131,7 @@ export default function ContactScreen() {
         'Success',
         'Your ticket has been submitted. Our support team will respond shortly.'
       );
-      setTicketData({ subject: '', description: '' });
+      setTicketData({ subject: '', description: '', productId: '' });
       setSelectedType(null);
     } catch (error) {
       console.error('Error submitting ticket:', error);
