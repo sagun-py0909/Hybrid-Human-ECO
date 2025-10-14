@@ -117,20 +117,38 @@ export default function ProfileScreen() {
         )}
       </LinearGradient>
 
-      {/* Devices */}
-      {user?.devices && user.devices.length > 0 && (
+      {/* My Devices Section */}
+      {isLoadingDevices ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Devices</Text>
-          <View style={styles.devicesContainer}>
-            {user.devices.map((device, index) => (
-              <View key={index} style={styles.deviceChip}>
-                <Ionicons name="hardware-chip" size={16} color="#8FBC8F" />
-                <Text style={styles.deviceText}>{device}</Text>
-              </View>
-            ))}
-          </View>
+          <Text style={styles.sectionTitle}>My Devices</Text>
+          <ActivityIndicator size="small" color="#8FBC8F" />
         </View>
-      )}
+      ) : devices.length > 0 ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>My Devices</Text>
+          {devices.map((device, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.deviceCard}
+              onPress={() => router.push(`/device-details?deviceName=${encodeURIComponent(device.name)}`)}
+            >
+              <View style={styles.deviceIconContainer}>
+                <Ionicons name="hardware-chip" size={32} color="#8FBC8F" />
+              </View>
+              <View style={styles.deviceInfo}>
+                <Text style={styles.deviceName}>{device.name}</Text>
+                <Text style={styles.deviceCategory}>{device.category}</Text>
+                {device.totalSessions > 0 && (
+                  <Text style={styles.deviceStats}>
+                    {device.totalSessions} sessions • {device.totalMinutes} mins
+                  </Text>
+                )}
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#666" />
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : null}
 
       {/* Menu Items */}
       <View style={styles.section}>
