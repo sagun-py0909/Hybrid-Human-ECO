@@ -94,7 +94,7 @@ export default function HomeScreen() {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          tintColor="#8FBC8F"
+          tintColor="#556B2F"
         />
       }
     >
