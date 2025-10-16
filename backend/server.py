@@ -1529,3 +1529,21 @@ async def seed_database():
             logger.info("Default products created")
         
         logger.info("Database seeding completed!")
+
+
+# Include the API router
+app.include_router(api_router)
+
+# Startup event to seed database
+@app.on_event("startup")
+async def startup_event():
+    await seed_database()
+
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
