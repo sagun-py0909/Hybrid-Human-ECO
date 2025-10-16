@@ -201,6 +201,83 @@ class UserStats(BaseModel):
     currentStreak: int
     totalDeviceUsage: int
 
+
+# ============= ONBOARDING SYSTEM MODELS =============
+
+class LifecycleFormStep1(BaseModel):
+    name: str
+    age: int
+    gender: str
+    height: float  # in cm
+    weight: float  # in kg
+    email: EmailStr
+    phone: str
+
+class LifecycleFormStep2(BaseModel):
+    sleepHours: float
+    sleepQuality: int  # 1-5
+    sleepIssues: Optional[str] = None
+    stressLevel: int  # 1-5
+    fitnessLevel: str  # beginner/intermediate/advanced
+
+class LifecycleFormStep3(BaseModel):
+    dietType: str  # veg/non-veg/vegan
+    allergies: Optional[str] = None
+    supplementUse: Optional[str] = None
+    hydrationLevel: str  # low/medium/high
+
+class LifecycleFormStep4(BaseModel):
+    conditions: Optional[str] = None
+    medications: Optional[str] = None
+    familyHistory: Optional[str] = None
+    healthGoals: str
+
+class LifecycleFormComplete(BaseModel):
+    step1: LifecycleFormStep1
+    step2: LifecycleFormStep2
+    step3: LifecycleFormStep3
+    step4: LifecycleFormStep4
+
+class ShipmentStage(BaseModel):
+    stage: str  # ordered/shipped/out_for_delivery/installed
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    note: Optional[str] = None
+    eta: Optional[str] = None  # estimated delivery date
+
+class ShipmentTracking(BaseModel):
+    userId: str
+    currentStage: str = "ordered"
+    stages: List[ShipmentStage] = []
+
+class DNAStage(BaseModel):
+    stage: str  # collection_scheduled/sample_collected/analysis_in_progress/report_ready
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    labName: Optional[str] = None
+    adminNotes: Optional[str] = None
+
+class DNATracking(BaseModel):
+    userId: str
+    currentStage: str = "collection_scheduled"
+    stages: List[DNAStage] = []
+
+class UserModeUpdate(BaseModel):
+    mode: str  # onboarding/unlocked
+
+class TicketWithVideo(BaseModel):
+    type: str  # machine/program/test
+    subject: str
+    description: str
+    productId: Optional[str] = None
+    videoUrl: Optional[str] = None  # S3 URL placeholder
+
+class OnboardingStats(BaseModel):
+    totalUsers: int
+    onboardingUsers: int
+    unlockedUsers: int
+    shipmentStages: dict
+    dnaStages: dict
+    activeTickets: int
+
 # ============= AUTH UTILITIES =============
 
 def hash_password(password: str) -> str:
