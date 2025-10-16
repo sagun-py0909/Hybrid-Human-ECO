@@ -336,6 +336,11 @@ async def register(user_data: UserRegister):
         "phone": user_data.phone,
         "role": "user",
         "devices": [],
+        "mode": "onboarding",  # New: Default to onboarding mode
+        "lifecycleForm": None,  # New: Will be filled after registration
+        "onboardingStartDate": datetime.utcnow(),  # New: Track onboarding start
+        "onboardingCompletedDate": None,  # New: Set when unlocked
+        "autoUnlockAfter25Days": True,  # New: Enable auto-unlock
         "createdAt": datetime.utcnow()
     }
     
