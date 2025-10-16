@@ -8,7 +8,8 @@ export default defineConfig({
     host: '0.0.0.0',
     proxy: {
       '/api': {
-        target: 'http://localhost:8001',
+        // Forward API requests to the local backend. Update port if backend listens elsewhere.
+        target: 'http://127.0.0.1:51540',
         changeOrigin: true
       }
     }
