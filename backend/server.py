@@ -311,7 +311,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     
     return serialize_doc(user)
 
-async def require_admin(current_user: dict = Depends(get_current_user)):
+async def get_admin_user(current_user: dict = Depends(get_current_user)):
     if current_user.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
@@ -540,8 +540,8 @@ async def complete_task(task_data: TaskComplete, current_user: dict = Depends(ge
     
     return {"message": "Task completed successfully"}
 
-@api_router.post("/programs", dependencies=[Depends(require_admin)])
-async def create_program(program: ProgramCreate, current_user: dict = Depends(require_admin)):
+@api_router.post("/programs", dependencies=[Depends(get_admin_user)])
+async def create_program(program: ProgramCreate, current_user: dict = Depends(get_admin_user)):
     program_dict = program.dict()
     program_dict["createdBy"] = current_user["_id"]
     program_dict["createdAt"] = datetime.utcnow()
@@ -549,7 +549,7 @@ async def create_program(program: ProgramCreate, current_user: dict = Depends(re
     result = await db.programs.insert_one(program_dict)
     return {"id": str(result.inserted_id), "message": "Program created successfully"}
 
-@api_router.get("/programs/user/{user_id}", dependencies=[Depends(require_admin)])
+@api_router.get("/programs/user/{user_id}", dependencies=[Depends(get_admin_user)])
 async def get_user_programs(user_id: str):
     programs = await db.programs.find({"userId": user_id}).sort("date", -1).to_list(100)
     return [serialize_doc(p) for p in programs]
@@ -580,7 +580,7 @@ async def get_my_tickets(current_user: dict = Depends(get_current_user)):
         ticket["userId"] = str(ticket["userId"])
     return [serialize_doc(t) for t in tickets]
 
-@api_router.get("/tickets", dependencies=[Depends(require_admin)])
+@api_router.get("/tickets", dependencies=[Depends(get_admin_user)])
 async def get_all_tickets():
     tickets = await db.tickets.find({}).sort("createdAt", -1).to_list(500)
     for ticket in tickets:
@@ -592,7 +592,7 @@ async def get_all_tickets():
             ticket["userName"] = user.get("fullName", "Unknown")
     return [serialize_doc(t) for t in tickets]
 
-@api_router.put("/tickets/{ticket_id}/status", dependencies=[Depends(require_admin)])
+@api_router.put("/tickets/{ticket_id}/status", dependencies=[Depends(get_admin_user)])
 async def update_ticket_status(ticket_id: str, status_data: UpdateStatus):
     update_data = {"status": status_data.status}
     if status_data.status == "resolved":
@@ -632,7 +632,7 @@ async def get_my_call_requests(current_user: dict = Depends(get_current_user)):
         req["userId"] = str(req["userId"])
     return [serialize_doc(r) for r in requests]
 
-@api_router.get("/call-requests", dependencies=[Depends(require_admin)])
+@api_router.get("/call-requests", dependencies=[Depends(get_admin_user)])
 async def get_all_call_requests():
     requests = await db.call_requests.find({}).sort("createdAt", -1).to_list(500)
     for req in requests:
@@ -645,7 +645,7 @@ async def get_all_call_requests():
             req["userPhone"] = user.get("phone", "")
     return [serialize_doc(r) for r in requests]
 
-@api_router.put("/call-requests/{request_id}/status", dependencies=[Depends(require_admin)])
+@api_router.put("/call-requests/{request_id}/status", dependencies=[Depends(get_admin_user)])
 async def update_call_request_status(request_id: str, status_data: UpdateStatus):
     result = await db.call_requests.update_one(
         {"_id": ObjectId(request_id)},
@@ -667,8 +667,8 @@ async def get_my_reports(current_user: dict = Depends(get_current_user)):
         report["createdBy"] = str(report["createdBy"])
     return [serialize_doc(r) for r in reports]
 
-@api_router.post("/reports", dependencies=[Depends(require_admin)])
-async def create_report(report: Report, current_user: dict = Depends(require_admin)):
+@api_router.post("/reports", dependencies=[Depends(get_admin_user)])
+async def create_report(report: Report, current_user: dict = Depends(get_admin_user)):
     report_dict = report.dict()
     report_dict["userId"] = ObjectId(report_dict["userId"])
     report_dict["createdBy"] = ObjectId(current_user["_id"])
@@ -697,12 +697,12 @@ async def log_device_usage(usage: DeviceUsageCreate, current_user: dict = Depend
 
 # ============= ADMIN ROUTES =============
 
-@api_router.get("/admin/users", dependencies=[Depends(require_admin)])
+@api_router.get("/admin/users", dependencies=[Depends(get_admin_user)])
 async def get_all_users():
     users = await db.users.find({}).to_list(1000)
     return [serialize_doc(u) for u in users]
 
-@api_router.put("/admin/users/{user_id}/role", dependencies=[Depends(require_admin)])
+@api_router.put("/admin/users/{user_id}/role", dependencies=[Depends(get_admin_user)])
 async def update_user_role(user_id: str, role_data: dict):
     result = await db.users.update_one(
         {"_id": ObjectId(user_id)},
@@ -714,7 +714,7 @@ async def update_user_role(user_id: str, role_data: dict):
     
     return {"message": "User role updated successfully"}
 
-@api_router.delete("/admin/users/{user_id}", dependencies=[Depends(require_admin)])
+@api_router.delete("/admin/users/{user_id}", dependencies=[Depends(get_admin_user)])
 async def delete_user(user_id: str):
     result = await db.users.delete_one({"_id": ObjectId(user_id)})
     
@@ -723,7 +723,7 @@ async def delete_user(user_id: str):
     
     return {"message": "User deleted successfully"}
 
-@api_router.get("/admin/analytics", dependencies=[Depends(require_admin)])
+@api_router.get("/admin/analytics", dependencies=[Depends(get_admin_user)])
 async def get_analytics():
     total_users = await db.users.count_documents({"role": "user"})
     total_admins = await db.users.count_documents({"role": "admin"})
@@ -743,8 +743,8 @@ async def get_analytics():
         "recentUsers": [serialize_doc(u) for u in recent_users]
     }
 
-@api_router.post("/admin/programs/bulk", dependencies=[Depends(require_admin)])
-async def create_bulk_programs(bulk_data: BulkProgramCreate, current_user: dict = Depends(require_admin)):
+@api_router.post("/admin/programs/bulk", dependencies=[Depends(get_admin_user)])
+async def create_bulk_programs(bulk_data: BulkProgramCreate, current_user: dict = Depends(get_admin_user)):
     """Create programs for multiple users over specified weeks"""
     from datetime import timedelta
     
@@ -777,7 +777,7 @@ async def create_bulk_programs(bulk_data: BulkProgramCreate, current_user: dict 
         "duration": f"{bulk_data.weeks} weeks"
     }
 
-@api_router.get("/admin/templates", dependencies=[Depends(require_admin)])
+@api_router.get("/admin/templates", dependencies=[Depends(get_admin_user)])
 async def get_program_templates():
     """Get predefined program templates"""
     templates = [
@@ -848,7 +848,7 @@ async def get_program_templates():
     ]
     return templates
 
-@api_router.get("/admin/user/{user_id}/progress", dependencies=[Depends(require_admin)])
+@api_router.get("/admin/user/{user_id}/progress", dependencies=[Depends(get_admin_user)])
 async def get_user_progress(user_id: str):
     """Get detailed progress for a specific user"""
     # Get user info
@@ -915,8 +915,8 @@ async def get_user_progress(user_id: str):
         "programCount": len(programs)
     }
 
-@api_router.post("/admin/reports/upload", dependencies=[Depends(require_admin)])
-async def upload_report(report_data: ReportUpload, current_user: dict = Depends(require_admin)):
+@api_router.post("/admin/reports/upload", dependencies=[Depends(get_admin_user)])
+async def upload_report(report_data: ReportUpload, current_user: dict = Depends(get_admin_user)):
     """Upload a report for a user"""
     # Validate user exists
     user = await db.users.find_one({"_id": ObjectId(report_data.userId)})
@@ -937,14 +937,14 @@ async def upload_report(report_data: ReportUpload, current_user: dict = Depends(
 
 # ============= PRODUCT MANAGEMENT ROUTES =============
 
-@api_router.get("/admin/products", dependencies=[Depends(require_admin)])
+@api_router.get("/admin/products", dependencies=[Depends(get_admin_user)])
 async def get_all_products():
     """Get all products"""
     products = await db.products.find({}).to_list(1000)
     return [serialize_doc(p) for p in products]
 
-@api_router.post("/admin/products", dependencies=[Depends(require_admin)])
-async def create_product(product: ProductCreate, current_user: dict = Depends(require_admin)):
+@api_router.post("/admin/products", dependencies=[Depends(get_admin_user)])
+async def create_product(product: ProductCreate, current_user: dict = Depends(get_admin_user)):
     """Create a new product"""
     product_dict = product.dict()
     product_dict["createdAt"] = datetime.utcnow()
@@ -953,7 +953,7 @@ async def create_product(product: ProductCreate, current_user: dict = Depends(re
     result = await db.products.insert_one(product_dict)
     return {"id": str(result.inserted_id), "message": "Product created successfully"}
 
-@api_router.put("/admin/products/{product_id}", dependencies=[Depends(require_admin)])
+@api_router.put("/admin/products/{product_id}", dependencies=[Depends(get_admin_user)])
 async def update_product(product_id: str, product: ProductCreate):
     """Update a product"""
     result = await db.products.update_one(
@@ -966,7 +966,7 @@ async def update_product(product_id: str, product: ProductCreate):
     
     return {"message": "Product updated successfully"}
 
-@api_router.delete("/admin/products/{product_id}", dependencies=[Depends(require_admin)])
+@api_router.delete("/admin/products/{product_id}", dependencies=[Depends(get_admin_user)])
 async def delete_product(product_id: str):
     """Delete a product"""
     result = await db.products.delete_one({"_id": ObjectId(product_id)})
@@ -976,7 +976,7 @@ async def delete_product(product_id: str):
     
     return {"message": "Product deleted successfully"}
 
-@api_router.put("/admin/users/{user_id}/devices", dependencies=[Depends(require_admin)])
+@api_router.put("/admin/users/{user_id}/devices", dependencies=[Depends(get_admin_user)])
 async def update_user_devices(user_id: str, devices_data: UserDevicesUpdate):
     """Update user's devices"""
     result = await db.users.update_one(
@@ -989,8 +989,8 @@ async def update_user_devices(user_id: str, devices_data: UserDevicesUpdate):
     
     return {"message": "User devices updated successfully"}
 
-@api_router.post("/admin/users/create", dependencies=[Depends(require_admin)])
-async def create_user_by_admin(user_data: UserCreate, current_user: dict = Depends(require_admin)):
+@api_router.post("/admin/users/create", dependencies=[Depends(get_admin_user)])
+async def create_user_by_admin(user_data: UserCreate, current_user: dict = Depends(get_admin_user)):
     """Create a new user (admin only)"""
     # Check if user exists
     existing_user = await db.users.find_one({
@@ -1188,7 +1188,7 @@ async def create_ticket_with_video(ticket: TicketWithVideo, current_user: dict =
 # ============= ADMIN ONBOARDING MANAGEMENT ENDPOINTS =============
 
 @api_router.get("/admin/users-with-mode")
-async def get_users_with_mode(current_user: dict = Depends(require_admin)):
+async def get_users_with_mode(current_user: dict = Depends(get_admin_user)):
     """Get all users with their mode status"""
     users = await db.users.find({}, {
         "password": 0
@@ -1205,7 +1205,7 @@ async def get_users_with_mode(current_user: dict = Depends(require_admin)):
     return {"users": users_list}
 
 @api_router.put("/admin/user/{user_id}/mode")
-async def update_user_mode(user_id: str, mode_update: UserModeUpdate, current_user: dict = Depends(require_admin)):
+async def update_user_mode(user_id: str, mode_update: UserModeUpdate, current_user: dict = Depends(get_admin_user)):
     """Update user's mode (onboarding/unlocked)"""
     update_data = {"mode": mode_update.mode}
     
@@ -1224,7 +1224,7 @@ async def update_user_mode(user_id: str, mode_update: UserModeUpdate, current_us
     return {"message": f"User mode updated to {mode_update.mode}"}
 
 @api_router.get("/admin/lifecycle-form/{user_id}")
-async def get_user_lifecycle_form(user_id: str, current_user: dict = Depends(require_admin)):
+async def get_user_lifecycle_form(user_id: str, current_user: dict = Depends(get_admin_user)):
     """Get user's submitted lifecycle form"""
     user = await db.users.find_one({"_id": ObjectId(user_id)}, {"lifecycleForm": 1})
     if not user:
@@ -1236,7 +1236,7 @@ async def get_user_lifecycle_form(user_id: str, current_user: dict = Depends(req
 async def update_shipment_tracking(
     user_id: str, 
     stage_update: ShipmentStage, 
-    current_user: dict = Depends(require_admin)
+    current_user: dict = Depends(get_admin_user)
 ):
     """Update user's shipment tracking stage"""
     # Get existing tracking
@@ -1263,7 +1263,7 @@ async def update_shipment_tracking(
     return {"message": "Shipment tracking updated successfully"}
 
 @api_router.get("/admin/shipment-tracking/{user_id}")
-async def get_user_shipment_tracking(user_id: str, current_user: dict = Depends(require_admin)):
+async def get_user_shipment_tracking(user_id: str, current_user: dict = Depends(get_admin_user)):
     """Get user's shipment tracking"""
     tracking = await db.shipment_tracking.find_one({"userId": user_id})
     if not tracking:
@@ -1276,7 +1276,7 @@ async def get_user_shipment_tracking(user_id: str, current_user: dict = Depends(
 async def update_dna_tracking(
     user_id: str, 
     stage_update: DNAStage, 
-    current_user: dict = Depends(require_admin)
+    current_user: dict = Depends(get_admin_user)
 ):
     """Update user's DNA tracking stage"""
     # Get existing tracking
@@ -1303,7 +1303,7 @@ async def update_dna_tracking(
     return {"message": "DNA tracking updated successfully"}
 
 @api_router.get("/admin/dna-tracking/{user_id}")
-async def get_user_dna_tracking(user_id: str, current_user: dict = Depends(require_admin)):
+async def get_user_dna_tracking(user_id: str, current_user: dict = Depends(get_admin_user)):
     """Get user's DNA tracking"""
     tracking = await db.dna_tracking.find_one({"userId": user_id})
     if not tracking:
@@ -1313,7 +1313,7 @@ async def get_user_dna_tracking(user_id: str, current_user: dict = Depends(requi
     return tracking
 
 @api_router.get("/admin/onboarding-stats")
-async def get_onboarding_stats(current_user: dict = Depends(require_admin)):
+async def get_onboarding_stats(current_user: dict = Depends(get_admin_user)):
     """Get onboarding statistics for admin dashboard"""
     # Count users by mode
     total_users = await db.users.count_documents({})
