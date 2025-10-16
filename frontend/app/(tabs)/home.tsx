@@ -26,6 +26,10 @@ const motivationalQuotes = [
 
 export default function HomeScreen() {
   const { user, token } = useAuth();
+  const [userMode, setUserMode] = useState<string>('unlocked');
+  const [lifecycleFormCompleted, setLifecycleFormCompleted] = useState(false);
+  const [shipmentTracking, setShipmentTracking] = useState<any>(null);
+  const [dnaTracking, setDnaTracking] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [upcomingTasks, setUpcomingTasks] = useState<any[]>([]);
   const [deviceUsage, setDeviceUsage] = useState<any[]>([]);
@@ -40,25 +44,37 @@ export default function HomeScreen() {
     try {
       const headers = { Authorization: `Bearer ${token}` };
 
-      // Fetch user stats
-      const statsRes = await axios.get(`${API_URL}/user/stats`, { headers });
-      setStats(statsRes.data);
+      // Check user mode first
+      const modeRes = await axios.get(`${API_URL}/user/mode`, { headers });
+      setUserMode(modeRes.data.mode);
+      setLifecycleFormCompleted(modeRes.data.lifecycleFormCompleted);
 
-      // Fetch upcoming programs
-      const programsRes = await axios.get(`${API_URL}/programs/today`, { headers });
-      const allTasks: any[] = [];
-      programsRes.data.forEach((program: any) => {
-        program.tasks.forEach((task: any) => {
-          if (!task.completed) {
-            allTasks.push({ ...task, programDate: program.date });
-          }
+      if (modeRes.data.mode === 'onboarding') {
+        // Load onboarding-specific data
+        const shipmentRes = await axios.get(`${API_URL}/shipment-tracking`, { headers });
+        setShipmentTracking(shipmentRes.data);
+
+        const dnaRes = await axios.get(`${API_URL}/dna-tracking`, { headers });
+        setDnaTracking(dnaRes.data);
+      } else {
+        // Load unlocked mode data (existing functionality)
+        const statsRes = await axios.get(`${API_URL}/user/stats`, { headers });
+        setStats(statsRes.data);
+
+        const programsRes = await axios.get(`${API_URL}/programs/today`, { headers });
+        const allTasks: any[] = [];
+        programsRes.data.forEach((program: any) => {
+          program.tasks.forEach((task: any) => {
+            if (!task.completed) {
+              allTasks.push({ ...task, programDate: program.date });
+            }
+          });
         });
-      });
-      setUpcomingTasks(allTasks.slice(0, 3));
+        setUpcomingTasks(allTasks.slice(0, 3));
 
-      // Fetch device usage
-      const usageRes = await axios.get(`${API_URL}/device-usage/my`, { headers });
-      setDeviceUsage(usageRes.data.slice(0, 5));
+        const usageRes = await axios.get(`${API_URL}/device-usage/my`, { headers });
+        setDeviceUsage(usageRes.data.slice(0, 5));
+      }
     } catch (error) {
       console.error('Error loading home data:', error);
     } finally {
