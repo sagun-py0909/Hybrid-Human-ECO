@@ -1093,8 +1093,6 @@ async def shutdown_db_client():
 
 # ============= SEED DATA =============
 
-@app.on_event("startup")
-
 # ============= ONBOARDING SYSTEM ENDPOINTS =============
 
 @api_router.post("/lifecycle-form")
