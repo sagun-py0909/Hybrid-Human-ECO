@@ -1094,6 +1094,260 @@ async def shutdown_db_client():
 # ============= SEED DATA =============
 
 @app.on_event("startup")
+
+# ============= ONBOARDING SYSTEM ENDPOINTS =============
+
+@api_router.post("/lifecycle-form")
+async def submit_lifecycle_form(form_data: LifecycleFormComplete, current_user: dict = Depends(get_current_user)):
+    """Submit complete lifecycle form after registration"""
+    # Update user with lifecycle form data
+    await db.users.update_one(
+        {"_id": ObjectId(current_user["_id"])},
+        {"$set": {"lifecycleForm": form_data.dict()}}
+    )
+    
+    # Initialize shipment tracking
+    shipment_tracking = {
+        "userId": current_user["_id"],
+        "currentStage": "ordered",
+        "stages": [
+            {
+                "stage": "ordered",
+                "timestamp": datetime.utcnow(),
+                "note": "Order placed",
+                "eta": None
+            }
+        ]
+    }
+    await db.shipment_tracking.insert_one(shipment_tracking)
+    
+    # Initialize DNA tracking
+    dna_tracking = {
+        "userId": current_user["_id"],
+        "currentStage": "collection_scheduled",
+        "stages": [
+            {
+                "stage": "collection_scheduled",
+                "timestamp": datetime.utcnow(),
+                "labName": None,
+                "adminNotes": "DNA collection kit will be scheduled soon"
+            }
+        ]
+    }
+    await db.dna_tracking.insert_one(dna_tracking)
+    
+    return {"message": "Lifecycle form submitted successfully", "status": "onboarding"}
+
+@api_router.get("/user/mode")
+async def get_user_mode(current_user: dict = Depends(get_current_user)):
+    """Get current user's mode"""
+    return {
+        "mode": current_user.get("mode", "unlocked"),  # Default to unlocked for existing users
+        "onboardingStartDate": current_user.get("onboardingStartDate"),
+        "lifecycleFormCompleted": current_user.get("lifecycleForm") is not None
+    }
+
+@api_router.get("/shipment-tracking")
+async def get_shipment_tracking(current_user: dict = Depends(get_current_user)):
+    """Get current user's shipment tracking"""
+    tracking = await db.shipment_tracking.find_one({"userId": current_user["_id"]})
+    if not tracking:
+        return {"currentStage": None, "stages": []}
+    
+    tracking["_id"] = str(tracking["_id"])
+    return tracking
+
+@api_router.get("/dna-tracking")
+async def get_dna_tracking(current_user: dict = Depends(get_current_user)):
+    """Get current user's DNA tracking"""
+    tracking = await db.dna_tracking.find_one({"userId": current_user["_id"]})
+    if not tracking:
+        return {"currentStage": None, "stages": []}
+    
+    tracking["_id"] = str(tracking["_id"])
+    return tracking
+
+@api_router.post("/tickets/with-video")
+async def create_ticket_with_video(ticket: TicketWithVideo, current_user: dict = Depends(get_current_user)):
+    """Create ticket with optional video URL (S3 placeholder)"""
+    ticket_dict = {
+        "userId": ObjectId(current_user["_id"]),
+        "type": ticket.type,
+        "subject": ticket.subject,
+        "description": ticket.description,
+        "productId": ticket.productId,
+        "videoUrl": ticket.videoUrl,  # S3 URL placeholder
+        "status": "open",
+        "createdAt": datetime.utcnow(),
+        "updatedAt": datetime.utcnow()
+    }
+    
+    result = await db.tickets.insert_one(ticket_dict)
+    return {"message": "Ticket created successfully", "ticketId": str(result.inserted_id)}
+
+# ============= ADMIN ONBOARDING MANAGEMENT ENDPOINTS =============
+
+@api_router.get("/admin/users-with-mode")
+async def get_users_with_mode(current_user: dict = Depends(require_admin)):
+    """Get all users with their mode status"""
+    users = await db.users.find({}, {
+        "password": 0
+    }).to_list(1000)
+    
+    users_list = []
+    for user in users:
+        user_dict = serialize_doc(user)
+        # Add default mode for existing users
+        if "mode" not in user_dict:
+            user_dict["mode"] = "unlocked"
+        users_list.append(user_dict)
+    
+    return {"users": users_list}
+
+@api_router.put("/admin/user/{user_id}/mode")
+async def update_user_mode(user_id: str, mode_update: UserModeUpdate, current_user: dict = Depends(require_admin)):
+    """Update user's mode (onboarding/unlocked)"""
+    update_data = {"mode": mode_update.mode}
+    
+    # If unlocking, set completion date
+    if mode_update.mode == "unlocked":
+        update_data["onboardingCompletedDate"] = datetime.utcnow()
+    
+    result = await db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": update_data}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": f"User mode updated to {mode_update.mode}"}
+
+@api_router.get("/admin/lifecycle-form/{user_id}")
+async def get_user_lifecycle_form(user_id: str, current_user: dict = Depends(require_admin)):
+    """Get user's submitted lifecycle form"""
+    user = await db.users.find_one({"_id": ObjectId(user_id)}, {"lifecycleForm": 1})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"lifecycleForm": user.get("lifecycleForm")}
+
+@api_router.put("/admin/shipment-tracking/{user_id}")
+async def update_shipment_tracking(
+    user_id: str, 
+    stage_update: ShipmentStage, 
+    current_user: dict = Depends(require_admin)
+):
+    """Update user's shipment tracking stage"""
+    # Get existing tracking
+    tracking = await db.shipment_tracking.find_one({"userId": user_id})
+    
+    if not tracking:
+        # Create new tracking if doesn't exist
+        tracking = {
+            "userId": user_id,
+            "currentStage": stage_update.stage,
+            "stages": [stage_update.dict()]
+        }
+        await db.shipment_tracking.insert_one(tracking)
+    else:
+        # Update existing tracking
+        await db.shipment_tracking.update_one(
+            {"userId": user_id},
+            {
+                "$set": {"currentStage": stage_update.stage},
+                "$push": {"stages": stage_update.dict()}
+            }
+        )
+    
+    return {"message": "Shipment tracking updated successfully"}
+
+@api_router.get("/admin/shipment-tracking/{user_id}")
+async def get_user_shipment_tracking(user_id: str, current_user: dict = Depends(require_admin)):
+    """Get user's shipment tracking"""
+    tracking = await db.shipment_tracking.find_one({"userId": user_id})
+    if not tracking:
+        return {"currentStage": None, "stages": []}
+    
+    tracking["_id"] = str(tracking["_id"])
+    return tracking
+
+@api_router.put("/admin/dna-tracking/{user_id}")
+async def update_dna_tracking(
+    user_id: str, 
+    stage_update: DNAStage, 
+    current_user: dict = Depends(require_admin)
+):
+    """Update user's DNA tracking stage"""
+    # Get existing tracking
+    tracking = await db.dna_tracking.find_one({"userId": user_id})
+    
+    if not tracking:
+        # Create new tracking if doesn't exist
+        tracking = {
+            "userId": user_id,
+            "currentStage": stage_update.stage,
+            "stages": [stage_update.dict()]
+        }
+        await db.dna_tracking.insert_one(tracking)
+    else:
+        # Update existing tracking
+        await db.dna_tracking.update_one(
+            {"userId": user_id},
+            {
+                "$set": {"currentStage": stage_update.stage},
+                "$push": {"stages": stage_update.dict()}
+            }
+        )
+    
+    return {"message": "DNA tracking updated successfully"}
+
+@api_router.get("/admin/dna-tracking/{user_id}")
+async def get_user_dna_tracking(user_id: str, current_user: dict = Depends(require_admin)):
+    """Get user's DNA tracking"""
+    tracking = await db.dna_tracking.find_one({"userId": user_id})
+    if not tracking:
+        return {"currentStage": None, "stages": []}
+    
+    tracking["_id"] = str(tracking["_id"])
+    return tracking
+
+@api_router.get("/admin/onboarding-stats")
+async def get_onboarding_stats(current_user: dict = Depends(require_admin)):
+    """Get onboarding statistics for admin dashboard"""
+    # Count users by mode
+    total_users = await db.users.count_documents({})
+    onboarding_users = await db.users.count_documents({"mode": "onboarding"})
+    # Count existing users without mode field as unlocked
+    unlocked_users = total_users - onboarding_users
+    
+    # Get shipment stage distribution
+    shipment_stages = {}
+    shipments = await db.shipment_tracking.find({}).to_list(1000)
+    for shipment in shipments:
+        stage = shipment.get("currentStage", "unknown")
+        shipment_stages[stage] = shipment_stages.get(stage, 0) + 1
+    
+    # Get DNA stage distribution
+    dna_stages = {}
+    dna_trackings = await db.dna_tracking.find({}).to_list(1000)
+    for dna in dna_trackings:
+        stage = dna.get("currentStage", "unknown")
+        dna_stages[stage] = dna_stages.get(stage, 0) + 1
+    
+    # Get active tickets count
+    active_tickets = await db.tickets.count_documents({"status": {"$ne": "closed"}})
+    
+    return {
+        "totalUsers": total_users,
+        "onboardingUsers": onboarding_users,
+        "unlockedUsers": unlocked_users,
+        "shipmentStages": shipment_stages,
+        "dnaStages": dna_stages,
+        "activeTickets": active_tickets
+    }
+
+
 async def seed_database():
     # Check if admin exists
     admin_exists = await db.users.find_one({"username": "admin"})
