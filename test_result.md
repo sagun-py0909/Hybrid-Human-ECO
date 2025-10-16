@@ -219,6 +219,18 @@ backend:
           agent: "testing"
           comment: "Comprehensive Admin Panel CRUD testing completed. All 14 operations tested: ✅ Admin Authentication, ✅ Users Management (READ/UPDATE), ✅ User Progress with CSV export capability, ✅ Program Templates (READ), ✅ Bulk Program Creation (CREATE), ✅ Report Upload (CREATE) - Fixed ReportUpload model issue, ✅ User Reports Read, ✅ Tickets Management (READ/UPDATE), ✅ Call Requests Management (READ/UPDATE), ✅ Analytics (READ). Fixed backend bug in get_all_tickets endpoint. All CRUD operations working correctly with proper role-based access control."
 
+  - task: "Two-Mode Onboarding System - Backend"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Added complete onboarding system backend. Updated user schema with mode, lifecycleForm, onboarding dates. New collections: shipment_tracking, dna_tracking. New endpoints: POST /api/lifecycle-form, GET /api/user/mode, GET /api/shipment-tracking, GET /api/dna-tracking, POST /api/tickets/with-video, GET /api/admin/users-with-mode, PUT /api/admin/user/{id}/mode, GET /api/admin/lifecycle-form/{id}, PUT /api/admin/shipment-tracking/{id}, GET /api/admin/shipment-tracking/{id}, PUT /api/admin/dna-tracking/{id}, GET /api/admin/dna-tracking/{id}, GET /api/admin/onboarding-stats. Ready for backend testing."
+
 frontend:
   - task: "Product Selection UI in Contact Screen"
     implemented: true
