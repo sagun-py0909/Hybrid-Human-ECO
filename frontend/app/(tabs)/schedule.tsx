@@ -105,6 +105,39 @@ export default function ScheduleScreen() {
 
   const isToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
 
+  // Show locked screen if in onboarding mode
+  if (userMode === 'onboarding') {
+    return (
+      <View style={styles.container}>
+        <View style={styles.lockedContainer}>
+          <Ionicons name="lock-closed" size={64} color="#D0C5B0" />
+          <Text style={styles.lockedTitle}>Schedule Locked</Text>
+          <Text style={styles.lockedText}>
+            Your personalized program schedule will be available once your onboarding is complete and your wellness plan is activated by our team.
+          </Text>
+          <View style={styles.lockedSteps}>
+            <View style={styles.lockedStep}>
+              <Ionicons name="checkmark-circle" size={24} color="#8FBC8F" />
+              <Text style={styles.lockedStepText}>Complete your lifestyle profile</Text>
+            </View>
+            <View style={styles.lockedStep}>
+              <Ionicons name="cube" size={24} color="#D0C5B0" />
+              <Text style={styles.lockedStepText}>Receive and install devices</Text>
+            </View>
+            <View style={styles.lockedStep}>
+              <Ionicons name="fitness" size={24} color="#D0C5B0" />
+              <Text style={styles.lockedStepText}>Complete DNA analysis</Text>
+            </View>
+            <View style={styles.lockedStep}>
+              <Ionicons name="calendar" size={24} color="#D0C5B0" />
+              <Text style={styles.lockedStepText}>Admin activates your program</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       {/* Date Selector */}
