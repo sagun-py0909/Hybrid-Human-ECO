@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRouter } from 'expo-router';
 import axios from 'axios';
 import { format } from 'date-fns';
 
