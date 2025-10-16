@@ -27,6 +27,7 @@ const motivationalQuotes = [
 
 export default function HomeScreen() {
   const { user, token } = useAuth();
+  const router = useRouter();
   const [userMode, setUserMode] = useState<string>('unlocked');
   const [lifecycleFormCompleted, setLifecycleFormCompleted] = useState(false);
   const [shipmentTracking, setShipmentTracking] = useState<any>(null);
