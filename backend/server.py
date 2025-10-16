@@ -1380,6 +1380,58 @@ async def seed_database():
         user_id = str(user_result.inserted_id)
         logger.info(f"Sample user created: john@example.com / password123")
         
+        # Create onboarding test user (Sarah)
+        onboarding_user_dict = {
+            "username": "sarahdoe",
+            "email": "sarah@example.com",
+            "password": hash_password("password123"),
+            "fullName": "Sarah Doe",
+            "phone": "+1555123456",
+            "role": "user",
+            "devices": [],  # No devices assigned yet
+            "mode": "onboarding",
+            "lifecycleForm": None,  # Not filled yet
+            "onboardingStartDate": datetime.utcnow(),
+            "onboardingCompletedDate": None,
+            "autoUnlockAfter25Days": True,
+            "createdAt": datetime.utcnow()
+        }
+        onboarding_result = await db.users.insert_one(onboarding_user_dict)
+        onboarding_user_id = str(onboarding_result.inserted_id)
+        logger.info(f"Onboarding test user created: sarah@example.com / password123")
+        
+        # Create shipment tracking for Sarah
+        shipment_tracking = {
+            "userId": onboarding_user_id,
+            "currentStage": "ordered",
+            "stages": [
+                {
+                    "stage": "ordered",
+                    "timestamp": datetime.utcnow(),
+                    "note": "Your Hybrid Human wellness devices have been ordered",
+                    "eta": (datetime.utcnow() + timedelta(days=7)).strftime("%Y-%m-%d")
+                }
+            ]
+        }
+        await db.shipment_tracking.insert_one(shipment_tracking)
+        logger.info(f"Shipment tracking created for Sarah")
+        
+        # Create DNA tracking for Sarah
+        dna_tracking = {
+            "userId": onboarding_user_id,
+            "currentStage": "collection_scheduled",
+            "stages": [
+                {
+                    "stage": "collection_scheduled",
+                    "timestamp": datetime.utcnow(),
+                    "labName": "Hybrid Human Genomics Lab",
+                    "adminNotes": "DNA collection kit will be shipped with devices"
+                }
+            ]
+        }
+        await db.dna_tracking.insert_one(dna_tracking)
+        logger.info(f"DNA tracking created for Sarah")
+        
         # Create sample programs for the user
         today = datetime.utcnow().date()
         for i in range(7):
