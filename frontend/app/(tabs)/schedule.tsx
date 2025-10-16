@@ -21,10 +21,27 @@ export default function ScheduleScreen() {
   const [programs, setPrograms] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
+  const [userMode, setUserMode] = useState<string>('unlocked');
 
   useEffect(() => {
-    loadPrograms();
-  }, [selectedDate]);
+    checkUserMode();
+  }, []);
+
+  useEffect(() => {
+    if (userMode === 'unlocked') {
+      loadPrograms();
+    }
+  }, [selectedDate, userMode]);
+
+  const checkUserMode = async () => {
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(`${API_URL}/user/mode`, { headers });
+      setUserMode(response.data.mode);
+    } catch (error) {
+      console.error('Error checking user mode:', error);
+    }
+  };
 
   const loadPrograms = async () => {
     try {
