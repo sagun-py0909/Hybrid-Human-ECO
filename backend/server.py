@@ -1188,7 +1188,7 @@ async def create_ticket_with_video(ticket: TicketWithVideo, current_user: dict =
 # ============= ADMIN ONBOARDING MANAGEMENT ENDPOINTS =============
 
 @api_router.get("/admin/users-with-mode")
-async def get_users_with_mode(current_user: dict = Depends(require_admin)):
+async def get_users_with_mode(current_user: dict = Depends(get_admin_user)):
     """Get all users with their mode status"""
     users = await db.users.find({}, {
         "password": 0
