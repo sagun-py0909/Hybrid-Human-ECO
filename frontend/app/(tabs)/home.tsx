@@ -104,6 +104,176 @@ export default function HomeScreen() {
     );
   }
 
+
+  const getShipmentStageIcon = (stage: string) => {
+    const icons: any = {
+      'ordered': 'cart',
+      'shipped': 'airplane',
+      'out_for_delivery': 'bicycle',
+      'installed': 'checkmark-circle',
+    };
+    return icons[stage] || 'hourglass';
+  };
+
+  const getDNAStageIcon = (stage: string) => {
+    const icons: any = {
+      'collection_scheduled': 'calendar',
+      'sample_collected': 'flask',
+      'analysis_in_progress': 'analytics',
+      'report_ready': 'document-text',
+    };
+    return icons[stage] || 'hourglass';
+  };
+
+  const formatStageName = (stage: string) => {
+    return stage.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
+
+  // Render onboarding mode UI
+  if (userMode === 'onboarding') {
+    return (
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={[styles.contentContainer, { paddingBottom: 100 }]}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#556B2F"
+          />
+        }
+      >
+        <View style={styles.welcomeSection}>
+          <Text style={styles.welcomeText}>Welcome to Hybrid Human,</Text>
+          <Text style={styles.userName}>{user?.fullName}</Text>
+        </View>
+
+        {/* Lifecycle Form Reminder */}
+        {!lifecycleFormCompleted && (
+          <TouchableOpacity
+            style={styles.reminderCard}
+            onPress={() => router.push('/lifecycle-form')}
+          >
+            <View style={styles.reminderContent}>
+              <Ionicons name="clipboard" size={32} color="#FF6B35" />
+              <View style={styles.reminderTextContainer}>
+                <Text style={styles.reminderTitle}>Complete Your Profile</Text>
+                <Text style={styles.reminderText}>
+                  Fill out your lifestyle form to help us personalize your wellness journey
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#556B2F" />
+            </View>
+          </TouchableOpacity>
+        )}
+
+        {/* Onboarding Message */}
+        <View style={styles.onboardingMessage}>
+          <Ionicons name="information-circle" size={24} color="#556B2F" />
+          <Text style={styles.onboardingText}>
+            Your wellness journey is being prepared. Track your device shipment and DNA collection below.
+          </Text>
+        </View>
+
+        {/* Shipment Tracking Card */}
+        <View style={styles.trackingCard}>
+          <View style={styles.trackingHeader}>
+            <Ionicons name="cube" size={24} color="#556B2F" />
+            <Text style={styles.trackingTitle}>Device Shipment</Text>
+          </View>
+          
+          {shipmentTracking && shipmentTracking.currentStage ? (
+            <>
+              <View style={styles.currentStageContainer}>
+                <Ionicons
+                  name={getShipmentStageIcon(shipmentTracking.currentStage)}
+                  size={48}
+                  color="#556B2F"
+                />
+                <Text style={styles.currentStageText}>
+                  {formatStageName(shipmentTracking.currentStage)}
+                </Text>
+              </View>
+
+              <View style={styles.stagesList}>
+                {shipmentTracking.stages && shipmentTracking.stages.map((stage: any, index: number) => (
+                  <View key={index} style={styles.stageItem}>
+                    <View style={styles.stageIconContainer}>
+                      <Ionicons
+                        name={getShipmentStageIcon(stage.stage)}
+                        size={20}
+                        color="#556B2F"
+                      />
+                    </View>
+                    <View style={styles.stageDetails}>
+                      <Text style={styles.stageName}>{formatStageName(stage.stage)}</Text>
+                      <Text style={styles.stageNote}>{stage.note}</Text>
+                      {stage.eta && (
+                        <Text style={styles.stageEta}>ETA: {stage.eta}</Text>
+                      )}
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </>
+          ) : (
+            <Text style={styles.noDataText}>Shipment tracking will be updated soon</Text>
+          )}
+        </View>
+
+        {/* DNA Tracking Card */}
+        <View style={styles.trackingCard}>
+          <View style={styles.trackingHeader}>
+            <Ionicons name="fitness" size={24} color="#556B2F" />
+            <Text style={styles.trackingTitle}>DNA Collection</Text>
+          </View>
+          
+          {dnaTracking && dnaTracking.currentStage ? (
+            <>
+              <View style={styles.currentStageContainer}>
+                <Ionicons
+                  name={getDNAStageIcon(dnaTracking.currentStage)}
+                  size={48}
+                  color="#556B2F"
+                />
+                <Text style={styles.currentStageText}>
+                  {formatStageName(dnaTracking.currentStage)}
+                </Text>
+              </View>
+
+              <View style={styles.stagesList}>
+                {dnaTracking.stages && dnaTracking.stages.map((stage: any, index: number) => (
+                  <View key={index} style={styles.stageItem}>
+                    <View style={styles.stageIconContainer}>
+                      <Ionicons
+                        name={getDNAStageIcon(stage.stage)}
+                        size={20}
+                        color="#556B2F"
+                      />
+                    </View>
+                    <View style={styles.stageDetails}>
+                      <Text style={styles.stageName}>{formatStageName(stage.stage)}</Text>
+                      {stage.labName && (
+                        <Text style={styles.stageNote}>Lab: {stage.labName}</Text>
+                      )}
+                      {stage.adminNotes && (
+                        <Text style={styles.stageNote}>{stage.adminNotes}</Text>
+                      )}
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </>
+          ) : (
+            <Text style={styles.noDataText}>DNA tracking will be updated soon</Text>
+          )}
+        </View>
+      </ScrollView>
+    );
+  }
+
+  // Render unlocked mode UI (existing content)
+
   return (
     <ScrollView
       style={styles.container}
