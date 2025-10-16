@@ -445,4 +445,43 @@ const styles = StyleSheet.create({
     marginTop: 16,
     textAlign: 'center',
   },
+  lockedContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+  },
+  lockedTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    marginTop: 24,
+    marginBottom: 12,
+  },
+  lockedText: {
+    fontSize: 16,
+    color: '#4A4A4A',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 40,
+  },
+  lockedSteps: {
+    width: '100%',
+    gap: 16,
+  },
+  lockedStep: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#D0C5B0',
+  },
+  lockedStepText: {
+    fontSize: 14,
+    color: '#1A1A1A',
+    flex: 1,
+  },
 });
