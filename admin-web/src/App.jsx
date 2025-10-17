@@ -11,6 +11,7 @@ import Tickets from './pages/Tickets'
 import CallRequests from './pages/CallRequests'
 import Products from './pages/Products'
 import Onboarding from './pages/Onboarding'
+import DNACollectionRequests from './pages/DNACollectionRequests'
 
 function App() {
   return (
