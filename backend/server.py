@@ -116,6 +116,7 @@ class TicketCreate(BaseModel):
     type: str
     subject: str
     description: str
+    productId: Optional[str] = None
 
 class CallRequest(BaseModel):
     userId: str
@@ -169,12 +170,113 @@ class BulkProgramCreate(BaseModel):
     startDate: str
     weeks: int  # Duration in weeks
 
+class Product(BaseModel):
+    name: str
+    description: str
+    category: str
+    serialNumber: Optional[str] = None
+    purchaseDate: Optional[str] = None
+
+class ProductCreate(BaseModel):
+    name: str
+    description: str
+    category: str
+
+class UserCreate(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+    fullName: str
+    phone: Optional[str] = None
+    role: str = "user"
+    devices: List[str] = []
+
+class UserDevicesUpdate(BaseModel):
+    devices: List[str]
+
 class UserStats(BaseModel):
     totalTasks: int
     completedTasks: int
     completionRate: int
     currentStreak: int
     totalDeviceUsage: int
+
+
+# ============= ONBOARDING SYSTEM MODELS =============
+
+class LifecycleFormStep1(BaseModel):
+    name: str
+    age: int
+    gender: str
+    height: float  # in cm
+    weight: float  # in kg
+    email: EmailStr
+    phone: str
+
+class LifecycleFormStep2(BaseModel):
+    sleepHours: float
+    sleepQuality: int  # 1-5
+    sleepIssues: Optional[str] = None
+    stressLevel: int  # 1-5
+    fitnessLevel: str  # beginner/intermediate/advanced
+
+class LifecycleFormStep3(BaseModel):
+    dietType: str  # veg/non-veg/vegan
+    allergies: Optional[str] = None
+    supplementUse: Optional[str] = None
+    hydrationLevel: str  # low/medium/high
+
+class LifecycleFormStep4(BaseModel):
+    conditions: Optional[str] = None
+    medications: Optional[str] = None
+    familyHistory: Optional[str] = None
+    healthGoals: str
+
+class LifecycleFormComplete(BaseModel):
+    step1: LifecycleFormStep1
+    step2: LifecycleFormStep2
+    step3: LifecycleFormStep3
+    step4: LifecycleFormStep4
+
+class ShipmentStage(BaseModel):
+    stage: str  # ordered/shipped/out_for_delivery/installed
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    note: Optional[str] = None
+    eta: Optional[str] = None  # estimated delivery date
+
+class ShipmentTracking(BaseModel):
+    userId: str
+    currentStage: str = "ordered"
+    stages: List[ShipmentStage] = []
+
+class DNAStage(BaseModel):
+    stage: str  # collection_scheduled/sample_collected/analysis_in_progress/report_ready
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    labName: Optional[str] = None
+    adminNotes: Optional[str] = None
+
+class DNATracking(BaseModel):
+    userId: str
+    currentStage: str = "collection_scheduled"
+    stages: List[DNAStage] = []
+
+class UserModeUpdate(BaseModel):
+    mode: str  # onboarding/unlocked
+
+class TicketWithVideo(BaseModel):
+    type: str  # machine/program/test
+    subject: str
+    description: str
+    productId: Optional[str] = None
+    videoUrl: Optional[str] = None  # S3 URL placeholder
+
+class OnboardingStats(BaseModel):
+    totalUsers: int
+    onboardingUsers: int
+    unlockedUsers: int
+    shipmentStages: dict
+    dnaStages: dict
+    activeTickets: int
 
 # ============= AUTH UTILITIES =============
 
@@ -234,6 +336,11 @@ async def register(user_data: UserRegister):
         "phone": user_data.phone,
         "role": "user",
         "devices": [],
+        "mode": "onboarding",  # New: Default to onboarding mode
+        "lifecycleForm": None,  # New: Will be filled after registration
+        "onboardingStartDate": datetime.utcnow(),  # New: Track onboarding start
+        "onboardingCompletedDate": None,  # New: Set when unlocked
+        "autoUnlockAfter25Days": True,  # New: Enable auto-unlock
         "createdAt": datetime.utcnow()
     }
     
@@ -456,6 +563,7 @@ async def create_ticket(ticket_data: TicketCreate, current_user: dict = Depends(
         "type": ticket_data.type,
         "subject": ticket_data.subject,
         "description": ticket_data.description,
+        "productId": ticket_data.productId,
         "status": "open",
         "priority": "medium",
         "createdAt": datetime.utcnow(),
@@ -827,6 +935,140 @@ async def upload_report(report_data: ReportUpload, current_user: dict = Depends(
     result = await db.reports.insert_one(report_dict)
     return {"id": str(result.inserted_id), "message": "Report uploaded successfully"}
 
+# ============= PRODUCT MANAGEMENT ROUTES =============
+
+@api_router.get("/admin/products", dependencies=[Depends(get_admin_user)])
+async def get_all_products():
+    """Get all products"""
+    products = await db.products.find({}).to_list(1000)
+    return [serialize_doc(p) for p in products]
+
+@api_router.post("/admin/products", dependencies=[Depends(get_admin_user)])
+async def create_product(product: ProductCreate, current_user: dict = Depends(get_admin_user)):
+    """Create a new product"""
+    product_dict = product.dict()
+    product_dict["createdAt"] = datetime.utcnow()
+    product_dict["createdBy"] = current_user["_id"]
+    
+    result = await db.products.insert_one(product_dict)
+    return {"id": str(result.inserted_id), "message": "Product created successfully"}
+
+@api_router.put("/admin/products/{product_id}", dependencies=[Depends(get_admin_user)])
+async def update_product(product_id: str, product: ProductCreate):
+    """Update a product"""
+    result = await db.products.update_one(
+        {"_id": ObjectId(product_id)},
+        {"$set": product.dict()}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    return {"message": "Product updated successfully"}
+
+@api_router.delete("/admin/products/{product_id}", dependencies=[Depends(get_admin_user)])
+async def delete_product(product_id: str):
+    """Delete a product"""
+    result = await db.products.delete_one({"_id": ObjectId(product_id)})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    return {"message": "Product deleted successfully"}
+
+@api_router.put("/admin/users/{user_id}/devices", dependencies=[Depends(get_admin_user)])
+async def update_user_devices(user_id: str, devices_data: UserDevicesUpdate):
+    """Update user's devices"""
+    result = await db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"devices": devices_data.devices}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "User devices updated successfully"}
+
+@api_router.post("/admin/users/create", dependencies=[Depends(get_admin_user)])
+async def create_user_by_admin(user_data: UserCreate, current_user: dict = Depends(get_admin_user)):
+    """Create a new user (admin only)"""
+    # Check if user exists
+    existing_user = await db.users.find_one({
+        "$or": [{"username": user_data.username}, {"email": user_data.email}]
+    })
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username or email already exists")
+    
+    # Create user
+    user_dict = {
+        "username": user_data.username,
+        "email": user_data.email,
+        "password": hash_password(user_data.password),
+        "fullName": user_data.fullName,
+        "phone": user_data.phone,
+        "role": user_data.role,
+        "devices": user_data.devices,
+        "createdAt": datetime.utcnow()
+    }
+    
+    result = await db.users.insert_one(user_dict)
+    return {
+        "id": str(result.inserted_id),
+        "message": "User created successfully",
+        "username": user_data.username,
+        "email": user_data.email
+    }
+
+@api_router.get("/user/devices")
+async def get_user_devices(current_user: dict = Depends(get_current_user)):
+    """Get current user's devices with details"""
+    device_names = current_user.get("devices", [])
+    devices_with_info = []
+    
+    for device_name in device_names:
+        # Get product info
+        product = await db.products.find_one({"name": device_name})
+        
+        # Get usage stats for this device
+        usage_records = await db.device_usage.find({
+            "userId": ObjectId(current_user["_id"]),
+            "deviceType": device_name
+        }).to_list(1000)
+        
+        total_sessions = len(usage_records)
+        total_minutes = sum(record.get("duration", 0) for record in usage_records)
+        
+        device_info = {
+            "name": device_name,
+            "description": product.get("description", "") if product else "",
+            "category": product.get("category", "Other") if product else "Other",
+            "totalSessions": total_sessions,
+            "totalMinutes": total_minutes
+        }
+        devices_with_info.append(device_info)
+    
+    return {"devices": devices_with_info}
+
+@api_router.get("/user/devices/{device_name}/usage")
+async def get_device_usage_logs(device_name: str, current_user: dict = Depends(get_current_user)):
+    """Get usage logs for a specific device"""
+    usage_records = await db.device_usage.find({
+        "userId": ObjectId(current_user["_id"]),
+        "deviceType": device_name
+    }).sort("date", -1).limit(100).to_list(100)
+    
+    # Get product info
+    product = await db.products.find_one({"name": device_name})
+    
+    for record in usage_records:
+        record["userId"] = str(record["userId"])
+    
+    return {
+        "deviceName": device_name,
+        "product": serialize_doc(product) if product else None,
+        "usageLogs": [serialize_doc(r) for r in usage_records]
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
@@ -851,7 +1093,259 @@ async def shutdown_db_client():
 
 # ============= SEED DATA =============
 
-@app.on_event("startup")
+# ============= ONBOARDING SYSTEM ENDPOINTS =============
+
+@api_router.post("/lifecycle-form")
+async def submit_lifecycle_form(form_data: LifecycleFormComplete, current_user: dict = Depends(get_current_user)):
+    """Submit complete lifecycle form after registration"""
+    # Update user with lifecycle form data
+    await db.users.update_one(
+        {"_id": ObjectId(current_user["_id"])},
+        {"$set": {"lifecycleForm": form_data.dict()}}
+    )
+    
+    # Initialize shipment tracking
+    shipment_tracking = {
+        "userId": current_user["_id"],
+        "currentStage": "ordered",
+        "stages": [
+            {
+                "stage": "ordered",
+                "timestamp": datetime.utcnow(),
+                "note": "Order placed",
+                "eta": None
+            }
+        ]
+    }
+    await db.shipment_tracking.insert_one(shipment_tracking)
+    
+    # Initialize DNA tracking
+    dna_tracking = {
+        "userId": current_user["_id"],
+        "currentStage": "collection_scheduled",
+        "stages": [
+            {
+                "stage": "collection_scheduled",
+                "timestamp": datetime.utcnow(),
+                "labName": None,
+                "adminNotes": "DNA collection kit will be scheduled soon"
+            }
+        ]
+    }
+    await db.dna_tracking.insert_one(dna_tracking)
+    
+    return {"message": "Lifecycle form submitted successfully", "status": "onboarding"}
+
+@api_router.get("/user/mode")
+async def get_user_mode(current_user: dict = Depends(get_current_user)):
+    """Get current user's mode"""
+    return {
+        "mode": current_user.get("mode", "unlocked"),  # Default to unlocked for existing users
+        "onboardingStartDate": current_user.get("onboardingStartDate"),
+        "lifecycleFormCompleted": current_user.get("lifecycleForm") is not None
+    }
+
+@api_router.get("/shipment-tracking")
+async def get_shipment_tracking(current_user: dict = Depends(get_current_user)):
+    """Get current user's shipment tracking"""
+    tracking = await db.shipment_tracking.find_one({"userId": current_user["_id"]})
+    if not tracking:
+        return {"currentStage": None, "stages": []}
+    
+    tracking["_id"] = str(tracking["_id"])
+    return tracking
+
+@api_router.get("/dna-tracking")
+async def get_dna_tracking(current_user: dict = Depends(get_current_user)):
+    """Get current user's DNA tracking"""
+    tracking = await db.dna_tracking.find_one({"userId": current_user["_id"]})
+    if not tracking:
+        return {"currentStage": None, "stages": []}
+    
+    tracking["_id"] = str(tracking["_id"])
+    return tracking
+
+@api_router.post("/tickets/with-video")
+async def create_ticket_with_video(ticket: TicketWithVideo, current_user: dict = Depends(get_current_user)):
+    """Create ticket with optional video URL (S3 placeholder)"""
+    ticket_dict = {
+        "userId": ObjectId(current_user["_id"]),
+        "type": ticket.type,
+        "subject": ticket.subject,
+        "description": ticket.description,
+        "productId": ticket.productId,
+        "videoUrl": ticket.videoUrl,  # S3 URL placeholder
+        "status": "open",
+        "createdAt": datetime.utcnow(),
+        "updatedAt": datetime.utcnow()
+    }
+    
+    result = await db.tickets.insert_one(ticket_dict)
+    return {"message": "Ticket created successfully", "ticketId": str(result.inserted_id)}
+
+# ============= ADMIN ONBOARDING MANAGEMENT ENDPOINTS =============
+
+@api_router.get("/admin/users-with-mode")
+async def get_users_with_mode(current_user: dict = Depends(get_admin_user)):
+    """Get all users with their mode status"""
+    users = await db.users.find({}, {
+        "password": 0
+    }).to_list(1000)
+    
+    users_list = []
+    for user in users:
+        user_dict = serialize_doc(user)
+        # Add default mode for existing users
+        if "mode" not in user_dict:
+            user_dict["mode"] = "unlocked"
+        users_list.append(user_dict)
+    
+    return {"users": users_list}
+
+@api_router.put("/admin/user/{user_id}/mode")
+async def update_user_mode(user_id: str, mode_update: UserModeUpdate, current_user: dict = Depends(get_admin_user)):
+    """Update user's mode (onboarding/unlocked)"""
+    update_data = {"mode": mode_update.mode}
+    
+    # If unlocking, set completion date
+    if mode_update.mode == "unlocked":
+        update_data["onboardingCompletedDate"] = datetime.utcnow()
+    
+    result = await db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": update_data}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": f"User mode updated to {mode_update.mode}"}
+
+@api_router.get("/admin/lifecycle-form/{user_id}")
+async def get_user_lifecycle_form(user_id: str, current_user: dict = Depends(get_admin_user)):
+    """Get user's submitted lifecycle form"""
+    user = await db.users.find_one({"_id": ObjectId(user_id)}, {"lifecycleForm": 1})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"lifecycleForm": user.get("lifecycleForm")}
+
+@api_router.put("/admin/shipment-tracking/{user_id}")
+async def update_shipment_tracking(
+    user_id: str, 
+    stage_update: ShipmentStage, 
+    current_user: dict = Depends(get_admin_user)
+):
+    """Update user's shipment tracking stage"""
+    # Get existing tracking
+    tracking = await db.shipment_tracking.find_one({"userId": user_id})
+    
+    if not tracking:
+        # Create new tracking if doesn't exist
+        tracking = {
+            "userId": user_id,
+            "currentStage": stage_update.stage,
+            "stages": [stage_update.dict()]
+        }
+        await db.shipment_tracking.insert_one(tracking)
+    else:
+        # Update existing tracking
+        await db.shipment_tracking.update_one(
+            {"userId": user_id},
+            {
+                "$set": {"currentStage": stage_update.stage},
+                "$push": {"stages": stage_update.dict()}
+            }
+        )
+    
+    return {"message": "Shipment tracking updated successfully"}
+
+@api_router.get("/admin/shipment-tracking/{user_id}")
+async def get_user_shipment_tracking(user_id: str, current_user: dict = Depends(get_admin_user)):
+    """Get user's shipment tracking"""
+    tracking = await db.shipment_tracking.find_one({"userId": user_id})
+    if not tracking:
+        return {"currentStage": None, "stages": []}
+    
+    tracking["_id"] = str(tracking["_id"])
+    return tracking
+
+@api_router.put("/admin/dna-tracking/{user_id}")
+async def update_dna_tracking(
+    user_id: str, 
+    stage_update: DNAStage, 
+    current_user: dict = Depends(get_admin_user)
+):
+    """Update user's DNA tracking stage"""
+    # Get existing tracking
+    tracking = await db.dna_tracking.find_one({"userId": user_id})
+    
+    if not tracking:
+        # Create new tracking if doesn't exist
+        tracking = {
+            "userId": user_id,
+            "currentStage": stage_update.stage,
+            "stages": [stage_update.dict()]
+        }
+        await db.dna_tracking.insert_one(tracking)
+    else:
+        # Update existing tracking
+        await db.dna_tracking.update_one(
+            {"userId": user_id},
+            {
+                "$set": {"currentStage": stage_update.stage},
+                "$push": {"stages": stage_update.dict()}
+            }
+        )
+    
+    return {"message": "DNA tracking updated successfully"}
+
+@api_router.get("/admin/dna-tracking/{user_id}")
+async def get_user_dna_tracking(user_id: str, current_user: dict = Depends(get_admin_user)):
+    """Get user's DNA tracking"""
+    tracking = await db.dna_tracking.find_one({"userId": user_id})
+    if not tracking:
+        return {"currentStage": None, "stages": []}
+    
+    tracking["_id"] = str(tracking["_id"])
+    return tracking
+
+@api_router.get("/admin/onboarding-stats")
+async def get_onboarding_stats(current_user: dict = Depends(get_admin_user)):
+    """Get onboarding statistics for admin dashboard"""
+    # Count users by mode
+    total_users = await db.users.count_documents({})
+    onboarding_users = await db.users.count_documents({"mode": "onboarding"})
+    # Count existing users without mode field as unlocked
+    unlocked_users = total_users - onboarding_users
+    
+    # Get shipment stage distribution
+    shipment_stages = {}
+    shipments = await db.shipment_tracking.find({}).to_list(1000)
+    for shipment in shipments:
+        stage = shipment.get("currentStage", "unknown")
+        shipment_stages[stage] = shipment_stages.get(stage, 0) + 1
+    
+    # Get DNA stage distribution
+    dna_stages = {}
+    dna_trackings = await db.dna_tracking.find({}).to_list(1000)
+    for dna in dna_trackings:
+        stage = dna.get("currentStage", "unknown")
+        dna_stages[stage] = dna_stages.get(stage, 0) + 1
+    
+    # Get active tickets count
+    active_tickets = await db.tickets.count_documents({"status": {"$ne": "closed"}})
+    
+    return {
+        "totalUsers": total_users,
+        "onboardingUsers": onboarding_users,
+        "unlockedUsers": unlocked_users,
+        "shipmentStages": shipment_stages,
+        "dnaStages": dna_stages,
+        "activeTickets": active_tickets
+    }
+
+
 async def seed_database():
     # Check if admin exists
     admin_exists = await db.users.find_one({"username": "admin"})
@@ -885,6 +1379,58 @@ async def seed_database():
         user_result = await db.users.insert_one(user_dict)
         user_id = str(user_result.inserted_id)
         logger.info(f"Sample user created: john@example.com / password123")
+        
+        # Create onboarding test user (Sarah)
+        onboarding_user_dict = {
+            "username": "sarahdoe",
+            "email": "sarah@example.com",
+            "password": hash_password("password123"),
+            "fullName": "Sarah Doe",
+            "phone": "+1555123456",
+            "role": "user",
+            "devices": [],  # No devices assigned yet
+            "mode": "onboarding",
+            "lifecycleForm": None,  # Not filled yet
+            "onboardingStartDate": datetime.utcnow(),
+            "onboardingCompletedDate": None,
+            "autoUnlockAfter25Days": True,
+            "createdAt": datetime.utcnow()
+        }
+        onboarding_result = await db.users.insert_one(onboarding_user_dict)
+        onboarding_user_id = str(onboarding_result.inserted_id)
+        logger.info(f"Onboarding test user created: sarah@example.com / password123")
+        
+        # Create shipment tracking for Sarah
+        shipment_tracking = {
+            "userId": onboarding_user_id,
+            "currentStage": "ordered",
+            "stages": [
+                {
+                    "stage": "ordered",
+                    "timestamp": datetime.utcnow(),
+                    "note": "Your Hybrid Human wellness devices have been ordered",
+                    "eta": (datetime.utcnow() + timedelta(days=7)).strftime("%Y-%m-%d")
+                }
+            ]
+        }
+        await db.shipment_tracking.insert_one(shipment_tracking)
+        logger.info(f"Shipment tracking created for Sarah")
+        
+        # Create DNA tracking for Sarah
+        dna_tracking = {
+            "userId": onboarding_user_id,
+            "currentStage": "collection_scheduled",
+            "stages": [
+                {
+                    "stage": "collection_scheduled",
+                    "timestamp": datetime.utcnow(),
+                    "labName": "Hybrid Human Genomics Lab",
+                    "adminNotes": "DNA collection kit will be shipped with devices"
+                }
+            ]
+        }
+        await db.dna_tracking.insert_one(dna_tracking)
+        logger.info(f"DNA tracking created for Sarah")
         
         # Create sample programs for the user
         today = datetime.utcnow().date()
@@ -943,4 +1489,61 @@ async def seed_database():
             await db.device_usage.insert_one(usage)
         
         logger.info("Sample device usage logs created")
+        
+        # Create default products
+        products_exist = await db.products.count_documents({})
+        if products_exist == 0:
+            default_products = [
+                {
+                    "name": "Cryotherapy Chamber",
+                    "description": "Full body cryotherapy chamber for recovery and anti-aging",
+                    "category": "Cryotherapy",
+                    "createdAt": datetime.utcnow()
+                },
+                {
+                    "name": "Red Light Sauna",
+                    "description": "Infrared red light therapy sauna for cellular regeneration",
+                    "category": "Light Therapy",
+                    "createdAt": datetime.utcnow()
+                },
+                {
+                    "name": "Compression Therapy System",
+                    "description": "Pneumatic compression device for circulation and recovery",
+                    "category": "Recovery",
+                    "createdAt": datetime.utcnow()
+                },
+                {
+                    "name": "Hyperbaric Oxygen Chamber",
+                    "description": "Pressurized oxygen therapy chamber",
+                    "category": "Oxygen Therapy",
+                    "createdAt": datetime.utcnow()
+                },
+                {
+                    "name": "Cold Plunge Pool",
+                    "description": "Temperature-controlled cold water immersion therapy",
+                    "category": "Cold Therapy",
+                    "createdAt": datetime.utcnow()
+                }
+            ]
+            await db.products.insert_many(default_products)
+            logger.info("Default products created")
+        
         logger.info("Database seeding completed!")
+
+
+# Include the API router
+app.include_router(api_router)
+
+# Startup event to seed database
+@app.on_event("startup")
+async def startup_event():
+    await seed_database()
+
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)

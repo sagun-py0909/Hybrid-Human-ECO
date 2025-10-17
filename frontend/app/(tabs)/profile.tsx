@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,15 +6,37 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
+import axios from 'axios';
+
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL + '/api';
 
 export default function ProfileScreen() {
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout, isAdmin, token } = useAuth();
   const router = useRouter();
+  const [devices, setDevices] = useState<any[]>([]);
+  const [isLoadingDevices, setIsLoadingDevices] = useState(true);
+
+  useEffect(() => {
+    loadDevices();
+  }, []);
+
+  const loadDevices = async () => {
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(`${API_URL}/user/devices`, { headers });
+      setDevices(response.data.devices);
+    } catch (error) {
+      console.error('Error loading devices:', error);
+    } finally {
+      setIsLoadingDevices(false);
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -69,7 +91,7 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView style={styles.container} contentContainerStyle={[styles.contentContainer, { paddingBottom: 100 }]}>
       {/* User Profile Card */}
       <LinearGradient
         colors={['#556B2F', '#8FBC8F']}
@@ -95,20 +117,38 @@ export default function ProfileScreen() {
         )}
       </LinearGradient>
 
-      {/* Devices */}
-      {user?.devices && user.devices.length > 0 && (
+      {/* My Devices Section */}
+      {isLoadingDevices ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Devices</Text>
-          <View style={styles.devicesContainer}>
-            {user.devices.map((device, index) => (
-              <View key={index} style={styles.deviceChip}>
-                <Ionicons name="hardware-chip" size={16} color="#8FBC8F" />
-                <Text style={styles.deviceText}>{device}</Text>
-              </View>
-            ))}
-          </View>
+          <Text style={styles.sectionTitle}>My Devices</Text>
+          <ActivityIndicator size="small" color="#556B2F" />
         </View>
-      )}
+      ) : devices.length > 0 ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>My Devices</Text>
+          {devices.map((device, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.deviceCard}
+              onPress={() => router.push(`/device-details?deviceName=${encodeURIComponent(device.name)}`)}
+            >
+              <View style={styles.deviceIconContainer}>
+                <Ionicons name="hardware-chip" size={32} color="#8FBC8F" />
+              </View>
+              <View style={styles.deviceInfo}>
+                <Text style={styles.deviceName}>{device.name}</Text>
+                <Text style={styles.deviceCategory}>{device.category}</Text>
+                {device.totalSessions > 0 && (
+                  <Text style={styles.deviceStats}>
+                    {device.totalSessions} sessions • {device.totalMinutes} mins
+                  </Text>
+                )}
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#888" />
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : null}
 
       {/* Menu Items */}
       <View style={styles.section}>
@@ -126,7 +166,7 @@ export default function ProfileScreen() {
               <Text style={styles.menuTitle}>{item.title}</Text>
               <Text style={styles.menuDescription}>{item.description}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#666" />
+            <Ionicons name="chevron-forward" size={20} color="#888" />
           </TouchableOpacity>
         ))}
       </View>
@@ -149,7 +189,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#FAF0DC',
   },
   contentContainer: {
     padding: 20,
@@ -184,12 +224,12 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 14,
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 4,
   },
   userPhone: {
     fontSize: 14,
-    color: '#E8E8E8',
+    color: '#1A1A1A',
   },
   adminBadge: {
     flexDirection: 'row',
@@ -212,35 +252,50 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 16,
   },
-  devicesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  deviceChip: {
+  deviceCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 8,
-    marginBottom: 8,
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#D0C5B0',
   },
-  deviceText: {
+  deviceIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#D0C5B0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  deviceInfo: {
+    flex: 1,
+  },
+  deviceName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    marginBottom: 4,
+  },
+  deviceCategory: {
     fontSize: 13,
     color: '#8FBC8F',
-    marginLeft: 6,
-    fontWeight: '600',
+    marginBottom: 4,
+  },
+  deviceStats: {
+    fontSize: 12,
+    color: '#4A4A4A',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -259,18 +314,18 @@ const styles = StyleSheet.create({
   menuTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 4,
   },
   menuDescription: {
     fontSize: 13,
-    color: '#999',
+    color: '#4A4A4A',
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     padding: 16,
     borderRadius: 12,
     marginBottom: 24,
@@ -289,7 +344,7 @@ const styles = StyleSheet.create({
   },
   appInfoText: {
     fontSize: 12,
-    color: '#666',
+    color: '#888',
     marginBottom: 4,
   },
 });

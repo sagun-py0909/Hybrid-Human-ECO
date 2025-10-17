@@ -12,6 +12,7 @@ const Layout = ({ children }) => {
   const menuItems = [
     { path: '/', icon: '📊', label: 'Dashboard' },
     { path: '/users', icon: '👥', label: 'Users' },
+    { path: '/products', icon: '📦', label: 'Products' },
     { path: '/programs', icon: '📅', label: 'Programs' },
     { path: '/reports', icon: '📄', label: 'Reports' },
     { path: '/tickets', icon: '🎫', label: 'Tickets' },

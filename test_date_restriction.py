@@ -6,7 +6,7 @@ import json
 from datetime import datetime, timedelta
 import sys
 
-API_BASE = "https://hybrid-human-1.preview.emergentagent.com/api"
+API_BASE = "https://hybrid-health.preview.emergentagent.com/api"
 
 def test_date_restriction():
     """Test task completion date restriction"""

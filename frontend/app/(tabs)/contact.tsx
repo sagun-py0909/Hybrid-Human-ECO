@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,17 +13,29 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Picker } from '@react-native-picker/picker';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL + '/api';
+// Force bundle update
 
 type ContactType = 'program' | 'machine' | null;
+
+interface Device {
+  name: string;
+  description: string;
+  category: string;
+  totalSessions: number;
+  totalMinutes: number;
+}
 
 export default function ContactScreen() {
   const { token } = useAuth();
   const [selectedType, setSelectedType] = useState<ContactType>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingDevices, setLoadingDevices] = useState(false);
+  const [userDevices, setUserDevices] = useState<Device[]>([]);
 
   // Program-related (schedule call) state
   const [callData, setCallData] = useState({
@@ -36,7 +48,28 @@ export default function ContactScreen() {
   const [ticketData, setTicketData] = useState({
     subject: '',
     description: '',
+    productId: '',
   });
+
+  useEffect(() => {
+    if (selectedType === 'machine') {
+      loadUserDevices();
+    }
+  }, [selectedType]);
+
+  const loadUserDevices = async () => {
+    setLoadingDevices(true);
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(`${API_URL}/user/devices`, { headers });
+      setUserDevices(response.data.devices || []);
+    } catch (error) {
+      console.error('Error loading devices:', error);
+      Alert.alert('Error', 'Failed to load your devices');
+    } finally {
+      setLoadingDevices(false);
+    }
+  };
 
   const handleSubmitCall = async () => {
     if (!callData.preferredDate || !callData.preferredTime) {
@@ -77,6 +110,11 @@ export default function ContactScreen() {
       return;
     }
 
+    if (!ticketData.productId) {
+      Alert.alert('Error', 'Please select a device');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const headers = { Authorization: `Bearer ${token}` };
@@ -86,6 +124,7 @@ export default function ContactScreen() {
           type: 'machine',
           subject: ticketData.subject,
           description: ticketData.description,
+          productId: ticketData.productId,
         },
         { headers }
       );
@@ -93,7 +132,7 @@ export default function ContactScreen() {
         'Success',
         'Your ticket has been submitted. Our support team will respond shortly.'
       );
-      setTicketData({ subject: '', description: '' });
+      setTicketData({ subject: '', description: '', productId: '' });
       setSelectedType(null);
     } catch (error) {
       console.error('Error submitting ticket:', error);
@@ -106,7 +145,7 @@ export default function ContactScreen() {
   if (selectedType === null) {
     return (
       <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.optionsContainer}>
+        <ScrollView contentContainerStyle={[styles.optionsContainer, { paddingBottom: 100 }]}>
           <Text style={styles.headerTitle}>How can we help you?</Text>
           <Text style={styles.headerSubtitle}>
             Choose the type of support you need
@@ -118,7 +157,7 @@ export default function ContactScreen() {
             onPress={() => setSelectedType('program')}
           >
             <LinearGradient
-              colors={['#1A1A1A', '#2A2A2A']}
+              colors={['#FFFFFF', '#D0C5B0']}
               style={styles.optionGradient}
             >
               <View style={styles.optionIcon}>
@@ -142,7 +181,7 @@ export default function ContactScreen() {
             onPress={() => setSelectedType('machine')}
           >
             <LinearGradient
-              colors={['#1A1A1A', '#2A2A2A']}
+              colors={['#FFFFFF', '#D0C5B0']}
               style={styles.optionGradient}
             >
               <View style={styles.optionIcon}>
@@ -181,14 +220,14 @@ export default function ContactScreen() {
       >
         <ScrollView
           style={styles.formContainer}
-          contentContainerStyle={styles.formContent}
+          contentContainerStyle={[styles.formContent, { paddingBottom: 100 }]}
           keyboardShouldPersistTaps="handled"
         >
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => setSelectedType(null)}
           >
-            <Ionicons name="arrow-back" size={24} color="#E8E8E8" />
+            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
             <Text style={styles.backButtonText}>Back</Text>
           </TouchableOpacity>
 
@@ -200,11 +239,11 @@ export default function ContactScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Preferred Date *</Text>
             <View style={styles.inputWrapper}>
-              <Ionicons name="calendar-outline" size={20} color="#8FBC8F" style={styles.inputIcon} />
+              <Ionicons name="calendar-outline" size={20} color="#556B2F" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="YYYY-MM-DD"
-                placeholderTextColor="#666"
+                placeholderTextColor="#555"
                 value={callData.preferredDate}
                 onChangeText={(text) => setCallData({ ...callData, preferredDate: text })}
               />
@@ -214,11 +253,11 @@ export default function ContactScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Preferred Time *</Text>
             <View style={styles.inputWrapper}>
-              <Ionicons name="time-outline" size={20} color="#8FBC8F" style={styles.inputIcon} />
+              <Ionicons name="time-outline" size={20} color="#556B2F" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="e.g., 10:00 AM - 12:00 PM"
-                placeholderTextColor="#666"
+                placeholderTextColor="#555"
                 value={callData.preferredTime}
                 onChangeText={(text) => setCallData({ ...callData, preferredTime: text })}
               />
@@ -231,7 +270,7 @@ export default function ContactScreen() {
               <TextInput
                 style={[styles.input, styles.textArea]}
                 placeholder="Tell us what you'd like to discuss..."
-                placeholderTextColor="#666"
+                placeholderTextColor="#555"
                 value={callData.notes}
                 onChangeText={(text) => setCallData({ ...callData, notes: text })}
                 multiline
@@ -279,7 +318,7 @@ export default function ContactScreen() {
           style={styles.backButton}
           onPress={() => setSelectedType(null)}
         >
-          <Ionicons name="arrow-back" size={24} color="#E8E8E8" />
+          <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
 
@@ -288,14 +327,52 @@ export default function ContactScreen() {
           Report device issues or request technical support
         </Text>
 
+        {/* Device Selection */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Select Device *</Text>
+          {loadingDevices ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator color="#8FBC8F" />
+              <Text style={styles.loadingText}>Loading your devices...</Text>
+            </View>
+          ) : userDevices.length === 0 ? (
+            <View style={styles.noDevicesContainer}>
+              <Ionicons name="alert-circle-outline" size={24} color="#FF6B35" />
+              <Text style={styles.noDevicesText}>
+                No devices found. Please contact support to assign devices to your account.
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={ticketData.productId}
+                onValueChange={(value) =>
+                  setTicketData({ ...ticketData, productId: value })
+                }
+                style={styles.picker}
+                dropdownIconColor="#8FBC8F"
+              >
+                <Picker.Item label="-- Select a device --" value="" />
+                {userDevices.map((device, index) => (
+                  <Picker.Item
+                    key={`device-${index}`}
+                    label={device.name}
+                    value={device.name}
+                  />
+                ))}
+              </Picker>
+            </View>
+          )}
+        </View>
+
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Subject *</Text>
           <View style={styles.inputWrapper}>
-            <Ionicons name="document-text-outline" size={20} color="#8FBC8F" style={styles.inputIcon} />
+            <Ionicons name="document-text-outline" size={20} color="#556B2F" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Brief description of the issue"
-              placeholderTextColor="#666"
+              placeholderTextColor="#555"
               value={ticketData.subject}
               onChangeText={(text) => setTicketData({ ...ticketData, subject: text })}
             />
@@ -308,7 +385,7 @@ export default function ContactScreen() {
             <TextInput
               style={[styles.input, styles.textArea]}
               placeholder="Please provide details about the issue, including device type, error messages, and when it started..."
-              placeholderTextColor="#666"
+              placeholderTextColor="#555"
               value={ticketData.description}
               onChangeText={(text) => setTicketData({ ...ticketData, description: text })}
               multiline
@@ -344,7 +421,7 @@ export default function ContactScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#FAF0DC',
   },
   optionsContainer: {
     padding: 20,
@@ -352,27 +429,31 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#999',
+    color: '#4A4A4A',
     marginBottom: 32,
   },
   optionCard: {
     marginBottom: 20,
     borderRadius: 16,
     overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0D5C0',
   },
   optionGradient: {
     padding: 24,
+    backgroundColor: '#FFFFFF',
   },
   optionIcon: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#F0E6D0',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -380,12 +461,12 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   optionDescription: {
     fontSize: 14,
-    color: '#999',
+    color: '#4A4A4A',
     lineHeight: 20,
     marginBottom: 16,
   },
@@ -396,13 +477,13 @@ const styles = StyleSheet.create({
   optionActionText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#8FBC8F',
+    color: '#556B2F',
     marginRight: 8,
   },
   emergencyCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFF5E6',
     padding: 20,
     borderRadius: 12,
     marginTop: 16,
@@ -416,7 +497,7 @@ const styles = StyleSheet.create({
   emergencyTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   emergencyText: {
@@ -437,18 +518,18 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#E8E8E8',
+    color: '#FFFFFF',
     marginLeft: 8,
   },
   formTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   formSubtitle: {
     fontSize: 14,
-    color: '#999',
+    color: '#4A4A4A',
     marginBottom: 32,
   },
   inputGroup: {
@@ -457,16 +538,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 8,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#D0C5B0',
   },
   inputIcon: {
     marginLeft: 16,
@@ -476,7 +557,7 @@ const styles = StyleSheet.create({
     height: 52,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#E8E8E8',
+    color: '#1A1A1A',
   },
   textAreaWrapper: {
     alignItems: 'flex-start',
@@ -500,5 +581,46 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#FFF',
+  },
+  pickerWrapper: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#D0C5B0',
+    overflow: 'hidden',
+  },
+  picker: {
+    color: '#FFFFFF',
+    height: 52,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF5E6',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#D0C5B0',
+  },
+  loadingText: {
+    fontSize: 14,
+    color: '#556B2F',
+    marginLeft: 12,
+  },
+  noDevicesContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF5E6',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FF6B35',
+  },
+  noDevicesText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    marginLeft: 12,
+    flex: 1,
+    lineHeight: 20,
   },
 });

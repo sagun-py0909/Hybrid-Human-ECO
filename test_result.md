@@ -153,6 +153,21 @@ backend:
           agent: "testing"
           comment: "Ticket system working correctly. POST /api/tickets creates tickets successfully, GET /api/tickets/my retrieves user tickets. Admin can view all tickets and update status."
 
+  - task: "Product Selection for Machine Tickets"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Backend updated to accept productId in ticket creation. TicketCreate model includes optional productId field, and create_ticket endpoint saves it to database. Ready for backend testing."
+        - working: true
+          agent: "testing"
+          comment: "Product selection feature fully tested and working correctly. ✅ User login (john@example.com), ✅ Admin login, ✅ Get user devices (3 devices: Cryotherapy Chamber, Red Light Sauna, Compression Therapy), ✅ Create ticket with productId (ticket ID: 68ee97cb64783f029205dd24), ✅ Create ticket without productId (backward compatibility confirmed), ✅ Retrieve user tickets (6 total: 1 with productId, 5 without), ✅ Admin can view all tickets with productId. All 7 test cases passed (100% success rate). Backend productId functionality working as expected."
+
   - task: "Call Request System"
     implemented: true
     working: true
@@ -204,8 +219,30 @@ backend:
           agent: "testing"
           comment: "Comprehensive Admin Panel CRUD testing completed. All 14 operations tested: ✅ Admin Authentication, ✅ Users Management (READ/UPDATE), ✅ User Progress with CSV export capability, ✅ Program Templates (READ), ✅ Bulk Program Creation (CREATE), ✅ Report Upload (CREATE) - Fixed ReportUpload model issue, ✅ User Reports Read, ✅ Tickets Management (READ/UPDATE), ✅ Call Requests Management (READ/UPDATE), ✅ Analytics (READ). Fixed backend bug in get_all_tickets endpoint. All CRUD operations working correctly with proper role-based access control."
 
+  - task: "Two-Mode Onboarding System - Backend"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Added complete onboarding system backend. Updated user schema with mode, lifecycleForm, onboarding dates. New collections: shipment_tracking, dna_tracking. New endpoints: POST /api/lifecycle-form, GET /api/user/mode, GET /api/shipment-tracking, GET /api/dna-tracking, POST /api/tickets/with-video, GET /api/admin/users-with-mode, PUT /api/admin/user/{id}/mode, GET /api/admin/lifecycle-form/{id}, PUT /api/admin/shipment-tracking/{id}, GET /api/admin/shipment-tracking/{id}, PUT /api/admin/dna-tracking/{id}, GET /api/admin/dna-tracking/{id}, GET /api/admin/onboarding-stats. Ready for backend testing."
+
 frontend:
-  # Frontend testing not performed as per instructions
+  - task: "Product Selection UI in Contact Screen"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/(tabs)/contact.tsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implemented product selection dropdown in machine ticket form. Added useEffect to load user devices, Device interface for type safety, Picker component from @react-native-picker/picker for product selection, validation for product selection, and included productId in ticket submission. Metro bundler has deep cache issue due to CI mode preventing hot reload - source code is correct but bundler serves stale cached version. Requires manual Metro restart or environment refresh to pick up changes."
 
 metadata:
   created_by: "testing_agent"
@@ -215,9 +252,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "All backend API endpoints tested and working"
-  stuck_tasks: []
-  test_all: true
+    - "Frontend Metro cache issue preventing reload"
+  stuck_tasks:
+    - "Frontend Metro bundler cache (CI mode issue)"
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
@@ -225,3 +263,7 @@ agent_communication:
       message: "Comprehensive backend API testing completed. All 23 test cases passed (100% success rate). Fixed one minor issue with device usage endpoint model. All authentication, user, program, ticket, call request, device usage, and admin endpoints are working correctly. Sample data is accessible and all CRUD operations function properly. Admin role-based access control is enforced. Ready for production use."
     - agent: "testing"
       message: "Admin Panel CRUD Operations testing completed successfully. Tested all requested operations: Admin Authentication ✅, Users Management (READ/UPDATE/DELETE) ✅, User Progress with CSV export ✅, Program Templates & Bulk Creation ✅, Report Upload & Management ✅, Tickets Management ✅, Call Requests Management ✅, Analytics ✅. Fixed critical backend bug in report upload endpoint (missing ReportUpload model) and admin tickets endpoint (user lookup issue). All 14 CRUD operations working correctly. System ready for admin panel usage."
+    - agent: "main"
+      message: "Implemented product selection for machine tickets. Backend: Updated TicketCreate model to include optional productId field, create_ticket endpoint now saves productId. Frontend: Added Device interface, installed @react-native-picker/picker package, implemented product dropdown with loading states, added validation for product selection, updated handleSubmitTicket to include productId. Issue encountered: Metro bundler running in CI mode with file watching disabled, causing deep cache issue. Source code is correct but needs manual environment refresh to pick up changes. Backend is ready for testing."
+    - agent: "testing"
+      message: "Product Selection for Machine Tickets backend testing completed successfully. All 7 test scenarios passed (100% success rate): ✅ User authentication (john@example.com), ✅ Admin authentication, ✅ User devices retrieval (3 devices available), ✅ Ticket creation with productId (successfully saved), ✅ Ticket creation without productId (backward compatibility confirmed), ✅ User ticket retrieval (productId field properly included), ✅ Admin ticket access (can view tickets with productId). Backend productId functionality is fully working. Feature ready for production use."

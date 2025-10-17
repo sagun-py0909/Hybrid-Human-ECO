@@ -21,10 +21,27 @@ export default function ScheduleScreen() {
   const [programs, setPrograms] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
+  const [userMode, setUserMode] = useState<string>('unlocked');
 
   useEffect(() => {
-    loadPrograms();
-  }, [selectedDate]);
+    checkUserMode();
+  }, []);
+
+  useEffect(() => {
+    if (userMode === 'unlocked') {
+      loadPrograms();
+    }
+  }, [selectedDate, userMode]);
+
+  const checkUserMode = async () => {
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(`${API_URL}/user/mode`, { headers });
+      setUserMode(response.data.mode);
+    } catch (error) {
+      console.error('Error checking user mode:', error);
+    }
+  };
 
   const loadPrograms = async () => {
     try {
@@ -88,19 +105,52 @@ export default function ScheduleScreen() {
 
   const isToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
 
+  // Show locked screen if in onboarding mode
+  if (userMode === 'onboarding') {
+    return (
+      <View style={styles.container}>
+        <View style={styles.lockedContainer}>
+          <Ionicons name="lock-closed" size={64} color="#D0C5B0" />
+          <Text style={styles.lockedTitle}>Schedule Locked</Text>
+          <Text style={styles.lockedText}>
+            Your personalized program schedule will be available once your onboarding is complete and your wellness plan is activated by our team.
+          </Text>
+          <View style={styles.lockedSteps}>
+            <View style={styles.lockedStep}>
+              <Ionicons name="checkmark-circle" size={24} color="#8FBC8F" />
+              <Text style={styles.lockedStepText}>Complete your lifestyle profile</Text>
+            </View>
+            <View style={styles.lockedStep}>
+              <Ionicons name="cube" size={24} color="#D0C5B0" />
+              <Text style={styles.lockedStepText}>Receive and install devices</Text>
+            </View>
+            <View style={styles.lockedStep}>
+              <Ionicons name="fitness" size={24} color="#D0C5B0" />
+              <Text style={styles.lockedStepText}>Complete DNA analysis</Text>
+            </View>
+            <View style={styles.lockedStep}>
+              <Ionicons name="calendar" size={24} color="#D0C5B0" />
+              <Text style={styles.lockedStepText}>Admin activates your program</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       {/* Date Selector */}
       <View style={styles.dateSelector}>
         <TouchableOpacity onPress={() => changeDate(-1)} style={styles.dateButton}>
-          <Ionicons name="chevron-back" size={24} color="#E8E8E8" />
+          <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
         <View style={styles.dateInfo}>
           <Text style={styles.dateText}>{format(selectedDate, 'MMMM d, yyyy')}</Text>
           {isToday && <Text style={styles.todayBadge}>Today</Text>}
         </View>
         <TouchableOpacity onPress={() => changeDate(1)} style={styles.dateButton}>
-          <Ionicons name="chevron-forward" size={24} color="#E8E8E8" />
+          <Ionicons name="chevron-forward" size={24} color="#1A1A1A" />
         </TouchableOpacity>
       </View>
 
@@ -145,10 +195,10 @@ export default function ScheduleScreen() {
       {/* Tasks List */}
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#8FBC8F" />
+          <ActivityIndicator size="large" color="#556B2F" />
         </View>
       ) : (
-        <ScrollView style={styles.tasksList} contentContainerStyle={styles.tasksContent}>
+        <ScrollView style={styles.tasksList} contentContainerStyle={[styles.tasksContent, { paddingBottom: 100 }]}>
           {getFilteredTasks().length > 0 ? (
             getFilteredTasks().map((task, index) => (
               <View key={index} style={styles.taskCard}>
@@ -169,7 +219,7 @@ export default function ScheduleScreen() {
                         <Ionicons name="checkmark" size={20} color="#FFF" />
                       )}
                       {!isToday && !task.completed && (
-                        <Ionicons name="lock-closed" size={16} color="#666" />
+                        <Ionicons name="lock-closed" size={16} color="#888" />
                       )}
                     </TouchableOpacity>
                     <View style={styles.taskInfo}>
@@ -207,7 +257,7 @@ export default function ScheduleScreen() {
             ))
           ) : (
             <View style={styles.emptyContainer}>
-              <Ionicons name="calendar-outline" size={64} color="#666" />
+              <Ionicons name="calendar-outline" size={64} color="#888" />
               <Text style={styles.emptyText}>
                 {programs.length === 0
                   ? 'No programs scheduled for this day'
@@ -224,7 +274,7 @@ export default function ScheduleScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#FAF0DC',
   },
   dateSelector: {
     flexDirection: 'row',
@@ -232,9 +282,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#2A2A2A',
+    borderBottomColor: '#D0C5B0',
   },
   dateButton: {
     padding: 8,
@@ -245,11 +295,11 @@ const styles = StyleSheet.create({
   infoBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2A2A2A',
+    backgroundColor: '#D0C5B0',
     padding: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#3A3A3A',
+    borderBottomColor: '#E0D5C0',
   },
   infoBannerText: {
     fontSize: 13,
@@ -260,7 +310,7 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
   },
   todayBadge: {
     fontSize: 12,
@@ -270,13 +320,13 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     padding: 16,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#FAF0DC',
   },
   filterTab: {
     flex: 1,
     paddingVertical: 10,
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     borderRadius: 8,
     marginHorizontal: 4,
   },
@@ -286,7 +336,7 @@ const styles = StyleSheet.create({
   filterText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#999',
+    color: '#4A4A4A',
   },
   filterTextActive: {
     color: '#FFF',
@@ -303,12 +353,12 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   taskCard: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#D0C5B0',
   },
   taskHeader: {
     flexDirection: 'row',
@@ -336,7 +386,7 @@ const styles = StyleSheet.create({
     borderColor: '#8FBC8F',
   },
   checkboxDisabled: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     borderColor: '#333',
     opacity: 0.5,
   },
@@ -346,16 +396,16 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 4,
   },
   taskTitleCompleted: {
     textDecorationLine: 'line-through',
-    color: '#999',
+    color: '#4A4A4A',
   },
   taskProgram: {
     fontSize: 12,
-    color: '#999',
+    color: '#4A4A4A',
   },
   completedBadge: {
     marginLeft: 8,
@@ -365,7 +415,7 @@ const styles = StyleSheet.create({
   },
   taskDescription: {
     fontSize: 14,
-    color: '#CCC',
+    color: '#AAA',
     lineHeight: 20,
     marginBottom: 12,
   },
@@ -391,8 +441,47 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: '#888',
     marginTop: 16,
     textAlign: 'center',
+  },
+  lockedContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+  },
+  lockedTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    marginTop: 24,
+    marginBottom: 12,
+  },
+  lockedText: {
+    fontSize: 16,
+    color: '#4A4A4A',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 40,
+  },
+  lockedSteps: {
+    width: '100%',
+    gap: 16,
+  },
+  lockedStep: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#D0C5B0',
+  },
+  lockedStepText: {
+    fontSize: 14,
+    color: '#1A1A1A',
+    flex: 1,
   },
 });

@@ -72,7 +72,7 @@ export default function LoginScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="Enter username or email"
-                  placeholderTextColor="#666"
+                  placeholderTextColor="#555"
                   value={identifier}
                   onChangeText={setIdentifier}
                   autoCapitalize="none"
@@ -88,7 +88,7 @@ export default function LoginScreen() {
                 <TextInput
                   style={[styles.input, styles.passwordInput]}
                   placeholder="Enter password"
-                  placeholderTextColor="#666"
+                  placeholderTextColor="#555"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
@@ -153,7 +153,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#FAF0DC',
   },
   scrollContent: {
     flexGrow: 1,
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginTop: 8,
     letterSpacing: 2,
   },
@@ -202,17 +202,17 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 8,
     letterSpacing: 0.5,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#D0C5B0',
   },
   inputIcon: {
     marginLeft: 16,
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     height: 56,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#E8E8E8',
+    color: '#1A1A1A',
   },
   passwordInput: {
     paddingRight: 48,
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   },
   registerText: {
     fontSize: 14,
-    color: '#999',
+    color: '#4A4A4A',
   },
   registerLink: {
     fontSize: 14,
@@ -273,10 +273,10 @@ const styles = StyleSheet.create({
   demoBox: {
     marginTop: 32,
     padding: 16,
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#D0C5B0',
   },
   demoTitle: {
     fontSize: 12,
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   },
   demoText: {
     fontSize: 12,
-    color: '#999',
+    color: '#4A4A4A',
     marginBottom: 4,
   },
 });

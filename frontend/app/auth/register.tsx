@@ -84,7 +84,7 @@ export default function RegisterScreen() {
               style={styles.backButton}
               onPress={() => router.back()}
             >
-              <Ionicons name="arrow-back" size={24} color="#E8E8E8" />
+              <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
             </TouchableOpacity>
             <LinearGradient
               colors={['#556B2F', '#8FBC8F']}
@@ -105,7 +105,7 @@ export default function RegisterScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="Choose a username"
-                  placeholderTextColor="#666"
+                  placeholderTextColor="#555"
                   value={formData.username}
                   onChangeText={(value) => updateFormData('username', value)}
                   autoCapitalize="none"
@@ -121,7 +121,7 @@ export default function RegisterScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="Enter your email"
-                  placeholderTextColor="#666"
+                  placeholderTextColor="#555"
                   value={formData.email}
                   onChangeText={(value) => updateFormData('email', value)}
                   autoCapitalize="none"
@@ -138,7 +138,7 @@ export default function RegisterScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="Enter your full name"
-                  placeholderTextColor="#666"
+                  placeholderTextColor="#555"
                   value={formData.fullName}
                   onChangeText={(value) => updateFormData('fullName', value)}
                   autoCapitalize="words"
@@ -153,7 +153,7 @@ export default function RegisterScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="Enter your phone number"
-                  placeholderTextColor="#666"
+                  placeholderTextColor="#555"
                   value={formData.phone}
                   onChangeText={(value) => updateFormData('phone', value)}
                   keyboardType="phone-pad"
@@ -168,7 +168,7 @@ export default function RegisterScreen() {
                 <TextInput
                   style={[styles.input, styles.passwordInput]}
                   placeholder="Create a password"
-                  placeholderTextColor="#666"
+                  placeholderTextColor="#555"
                   value={formData.password}
                   onChangeText={(value) => updateFormData('password', value)}
                   secureTextEntry={!showPassword}
@@ -194,7 +194,7 @@ export default function RegisterScreen() {
                 <TextInput
                   style={[styles.input, styles.passwordInput]}
                   placeholder="Confirm your password"
-                  placeholderTextColor="#666"
+                  placeholderTextColor="#555"
                   value={formData.confirmPassword}
                   onChangeText={(value) => updateFormData('confirmPassword', value)}
                   secureTextEntry={!showConfirmPassword}
@@ -248,7 +248,7 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: '#FAF0DC',
   },
   scrollContent: {
     flexGrow: 1,
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginTop: 8,
     letterSpacing: 1,
   },
@@ -302,17 +302,17 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#E8E8E8',
+    color: '#1A1A1A',
     marginBottom: 8,
     letterSpacing: 0.5,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: '#D0C5B0',
   },
   inputIcon: {
     marginLeft: 16,
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
     height: 52,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#E8E8E8',
+    color: '#1A1A1A',
   },
   passwordInput: {
     paddingRight: 48,
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
   },
   loginText: {
     fontSize: 14,
-    color: '#999',
+    color: '#4A4A4A',
   },
   loginLink: {
     fontSize: 14,
