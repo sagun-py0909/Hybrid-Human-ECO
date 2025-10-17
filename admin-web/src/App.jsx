@@ -82,6 +82,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/dna-collection"
+          element={
+            <ProtectedRoute>
+              <DNACollectionRequests />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AuthProvider>
