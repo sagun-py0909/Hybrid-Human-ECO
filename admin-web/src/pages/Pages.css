@@ -167,6 +167,96 @@
 }
 
 .table td {
+
+/* Onboarding specific styles */
+.stat-card.onboarding {
+  border-color: #FF6B35;
+}
+
+.stat-card.success {
+  border-color: #8FBC8F;
+}
+
+.stat-card.warning {
+  border-color: #FFD700;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #1A1A1A;
+  border: 1px solid #2A2A2A;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  color: #E8E8E8;
+  margin-bottom: 24px;
+}
+
+.modal-content h3 {
+  color: #8FBC8F;
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+
+.modal-content p {
+  color: #E8E8E8;
+  margin-bottom: 8px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  color: #E8E8E8;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px;
+  background: #0A0A0A;
+  border: 1px solid #2A2A2A;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #E8E8E8;
+  margin-bottom: 16px;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #8FBC8F;
+}
+
+textarea.form-control {
+  min-height: 100px;
+  resize: vertical;
+}
+
+select.form-control {
+  cursor: pointer;
+}
+
   padding: 16px;
   color: #E8E8E8;
   border-bottom: 1px solid #2A2A2A;
