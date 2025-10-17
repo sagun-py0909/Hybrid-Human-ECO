@@ -1196,6 +1196,43 @@ async def create_ticket_with_video(ticket: TicketWithVideo, current_user: dict =
     result = await db.tickets.insert_one(ticket_dict)
     return {"message": "Ticket created successfully", "ticketId": str(result.inserted_id)}
 
+
+@api_router.post("/dna-collection-request")
+async def request_dna_collection(
+    address: str,
+    preferredDate: str,
+    preferredTime: str,
+    notes: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """User requests DNA sample collection at their location"""
+    request_dict = {
+        "userId": current_user["_id"],
+        "fullName": current_user["fullName"],
+        "email": current_user["email"],
+        "phone": current_user.get("phone", ""),
+        "address": address,
+        "preferredDate": preferredDate,
+        "preferredTime": preferredTime,
+        "notes": notes,
+        "status": "pending",
+        "createdAt": datetime.utcnow()
+    }
+    
+    result = await db.dna_collection_requests.insert_one(request_dict)
+    return {
+        "message": "DNA collection request submitted successfully",
+        "requestId": str(result.inserted_id)
+    }
+
+@api_router.get("/dna-collection-request/my")
+async def get_my_dna_collection_request(current_user: dict = Depends(get_current_user)):
+    """Get current user's DNA collection request"""
+    request = await db.dna_collection_requests.find_one({"userId": current_user["_id"]})
+    if request:
+        request["_id"] = str(request["_id"])
+    return request or {}
+
 # ============= ADMIN ONBOARDING MANAGEMENT ENDPOINTS =============
 
 @api_router.get("/admin/users-with-mode")
