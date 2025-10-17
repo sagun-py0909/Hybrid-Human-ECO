@@ -1396,6 +1396,49 @@ async def get_onboarding_stats(current_user: dict = Depends(get_admin_user)):
     }
 
 
+@api_router.get("/admin/dna-collection-requests")
+async def get_all_dna_collection_requests(current_user: dict = Depends(get_admin_user)):
+    """Get all DNA collection requests for admin"""
+    requests = await db.dna_collection_requests.find({}).sort("createdAt", -1).to_list(1000)
+    
+    requests_list = []
+    for request in requests:
+        request_dict = serialize_doc(request)
+        requests_list.append(request_dict)
+    
+    return {"requests": requests_list}
+
+@api_router.put("/admin/dna-collection-request/{request_id}/status")
+async def update_dna_collection_request_status(
+    request_id: str,
+    status: str,
+    scheduledDate: Optional[str] = None,
+    scheduledTime: Optional[str] = None,
+    adminNotes: Optional[str] = None,
+    current_user: dict = Depends(get_admin_user)
+):
+    """Update DNA collection request status"""
+    update_data = {"status": status}
+    
+    if scheduledDate:
+        update_data["scheduledDate"] = scheduledDate
+    if scheduledTime:
+        update_data["scheduledTime"] = scheduledTime
+    if adminNotes:
+        update_data["adminNotes"] = adminNotes
+    
+    result = await db.dna_collection_requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {"$set": update_data}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    return {"message": "Request status updated successfully"}
+
+
+
 async def seed_database():
     # Check if admin exists
     admin_exists = await db.users.find_one({"username": "admin"})
