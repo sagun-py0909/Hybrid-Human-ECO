@@ -278,6 +278,19 @@ class OnboardingStats(BaseModel):
     dnaStages: dict
     activeTickets: int
 
+class DNACollectionRequest(BaseModel):
+    userId: str
+    fullName: str
+    email: str
+    phone: str
+    address: str
+    preferredDate: str
+    preferredTime: str
+    notes: Optional[str] = None
+    status: str = "pending"  # pending/scheduled/completed/cancelled
+    createdAt: datetime = Field(default_factory=datetime.utcnow)
+
+
 # ============= AUTH UTILITIES =============
 
 def hash_password(password: str) -> str:
