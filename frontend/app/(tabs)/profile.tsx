@@ -58,6 +58,13 @@ export default function ProfileScreen() {
 
   const menuItems = [
     {
+      icon: 'cube',
+      title: 'Product Catalog',
+      description: 'Explore our premium wellness devices',
+      onPress: () => router.push('/product-catalog'),
+      color: '#556B2F',
+    },
+    {
       icon: 'document-text',
       title: 'View Reports',
       description: 'Access your test results and reports',
