@@ -1,6 +1,7 @@
 import React from 'react';
-import { Tabs, Redirect } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import DrawerLayout from '../../components/DrawerLayout';
+import { Stack, Redirect } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function TabsLayout() {
@@ -15,67 +16,23 @@ export default function TabsLayout() {
   }
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: '#8FBC8F',
-        tabBarInactiveTintColor: '#666',
-        tabBarStyle: {
-          backgroundColor: '#0A0A0A',
-          borderTopColor: '#2A2A2A',
-          borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-        },
-        headerStyle: {
-          backgroundColor: '#000000',
-        },
-        headerTintColor: '#E8E8E8',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="home"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="schedule"
-        options={{
-          title: 'Schedule',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="contact"
-        options={{
-          title: 'Contact',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubbles" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <DrawerLayout>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: 'slide_from_right',
+            contentStyle: {
+              backgroundColor: '#FAF0DC',
+            },
+          }}
+        >
+          <Stack.Screen name="home" />
+          <Stack.Screen name="schedule" />
+          <Stack.Screen name="contact" />
+          <Stack.Screen name="profile" />
+        </Stack>
+      </DrawerLayout>
+    </GestureHandlerRootView>
   );
 }
