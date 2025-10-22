@@ -322,6 +322,15 @@ export default function ScheduleScreen() {
                       <Text style={styles.metaText}>{task.duration}</Text>
                     </View>
                   </View>
+                  {!task.completed && (
+                    <TouchableOpacity
+                      style={styles.rescheduleButton}
+                      onPress={() => handleRescheduleTask(task)}
+                    >
+                      <Ionicons name="calendar-outline" size={16} color="#8FBC8F" />
+                      <Text style={styles.rescheduleButtonText}>Reschedule</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </View>
             ))
