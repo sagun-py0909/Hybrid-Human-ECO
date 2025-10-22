@@ -256,9 +256,14 @@ const Users = () => {
           <h1 className="page-title">Users Management</h1>
           <p className="page-subtitle">Manage user accounts, modes, and devices</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-          ➕ Create User
-        </button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button className="btn btn-secondary" onClick={exportToCSV}>
+            📊 Export CSV
+          </button>
+          <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+            ➕ Create User
+          </button>
+        </div>
       </div>
 
       <div className="search-box">
