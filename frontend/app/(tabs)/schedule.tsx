@@ -346,6 +346,79 @@ export default function ScheduleScreen() {
           )}
         </ScrollView>
       )}
+
+      {/* Reschedule Modal */}
+      <Modal
+        visible={rescheduleModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setRescheduleModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Reschedule Task</Text>
+              <TouchableOpacity
+                onPress={() => setRescheduleModalVisible(false)}
+                style={styles.closeButton}
+              >
+                <Ionicons name="close" size={24} color="#1A1A1A" />
+              </TouchableOpacity>
+            </View>
+
+            {selectedTask && (
+              <View style={styles.taskInfo2}>
+                <Text style={styles.taskInfoTitle}>{selectedTask.title}</Text>
+                <Text style={styles.taskInfoDesc}>{selectedTask.description}</Text>
+              </View>
+            )}
+
+            <View style={styles.dateSection}>
+              <Text style={styles.dateLabel}>New Date:</Text>
+              <TouchableOpacity
+                style={styles.dateButton}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Ionicons name="calendar" size={20} color="#8FBC8F" />
+                <Text style={styles.dateText}>
+                  {format(rescheduleDate, 'MMMM d, yyyy')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {(showDatePicker || Platform.OS === 'ios') && (
+              <DateTimePicker
+                value={rescheduleDate}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={onDateChange}
+                minimumDate={new Date()}
+              />
+            )}
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setRescheduleModalVisible(false)}
+                disabled={isRescheduling}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={confirmReschedule}
+                disabled={isRescheduling}
+              >
+                {isRescheduling ? (
+                  <ActivityIndicator color="#FFF" />
+                ) : (
+                  <Text style={styles.confirmButtonText}>Confirm</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
