@@ -7,11 +7,14 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Modal,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
-import { format, addDays, subDays } from 'date-fns';
+import { format, addDays, subDays, isBefore, startOfDay } from 'date-fns';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL + '/api';
 
