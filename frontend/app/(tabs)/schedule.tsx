@@ -25,6 +25,11 @@ export default function ScheduleScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [userMode, setUserMode] = useState<string>('unlocked');
+  const [rescheduleModalVisible, setRescheduleModalVisible] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [rescheduleDate, setRescheduleDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isRescheduling, setIsRescheduling] = useState(false);
 
   useEffect(() => {
     checkUserMode();
