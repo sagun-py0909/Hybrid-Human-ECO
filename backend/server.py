@@ -1347,6 +1347,58 @@ async def update_user_mode(user_id: str, mode_update: UserModeUpdate, current_us
     
     return {"message": f"User mode updated to {mode_update.mode}"}
 
+@api_router.get("/admin/export/user-data")
+async def export_user_data(current_user: dict = Depends(get_admin_user)):
+    """Export all user data with their progress for CSV download"""
+    users = await db.users.find({}, {"password": 0}).to_list(1000)
+    
+    export_data = []
+    for user in users:
+        user_id = str(user["_id"])
+        
+        # Get user programs
+        programs = await db.programs.find({"userId": user_id}).to_list(1000)
+        
+        # Calculate stats
+        total_tasks = 0
+        completed_tasks = 0
+        for program in programs:
+            tasks = program.get("tasks", [])
+            total_tasks += len(tasks)
+            completed_tasks += sum(1 for task in tasks if task.get("completed", False))
+        
+        completion_rate = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
+        
+        # Get device usage
+        device_usage_logs = await db.device_usage.find({"userId": user_id}).to_list(1000)
+        total_sessions = len(device_usage_logs)
+        total_minutes = sum(log.get("duration", 0) for log in device_usage_logs)
+        
+        # Get tickets and calls
+        tickets = await db.tickets.find({"userId": user_id}).to_list(100)
+        calls = await db.call_requests.find({"userId": user_id}).to_list(100)
+        
+        export_data.append({
+            "User ID": user_id,
+            "Username": user.get("username", ""),
+            "Email": user.get("email", ""),
+            "Full Name": user.get("fullName", ""),
+            "Phone": user.get("phone", ""),
+            "Role": user.get("role", "user"),
+            "Mode": user.get("mode", "unlocked"),
+            "Devices": ", ".join(user.get("devices", [])),
+            "Total Tasks": total_tasks,
+            "Completed Tasks": completed_tasks,
+            "Completion Rate (%)": f"{completion_rate:.1f}",
+            "Total Device Sessions": total_sessions,
+            "Total Minutes": total_minutes,
+            "Tickets Raised": len(tickets),
+            "Call Requests": len(calls),
+            "Created At": user.get("createdAt", "").isoformat() if isinstance(user.get("createdAt"), datetime) else "",
+        })
+    
+    return {"data": export_data}
+
 @api_router.get("/admin/lifecycle-form/{user_id}")
 async def get_user_lifecycle_form(user_id: str, current_user: dict = Depends(get_admin_user)):
     """Get user's submitted lifecycle form"""
