@@ -5,7 +5,7 @@ import requests
 import json
 from datetime import datetime, timedelta
 
-API_BASE = "https://hybrid-health.preview.emergentagent.com/api"
+API_BASE = "https://luxury-wellness-2.preview.emergentagent.com/api"
 
 def create_test_programs():
     """Create fresh programs for testing"""

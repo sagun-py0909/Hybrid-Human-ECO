@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv('/app/frontend/.env')
 
 # Get backend URL from environment
-BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'https://hybrid-health.preview.emergentagent.com')
+BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'https://luxury-wellness-2.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 
 def login_user():
