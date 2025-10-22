@@ -102,6 +102,11 @@ class TaskComplete(BaseModel):
     programId: str
     taskId: str
 
+class TaskReschedule(BaseModel):
+    programId: str
+    taskId: str
+    newDate: str  # YYYY-MM-DD format
+
 class Ticket(BaseModel):
     userId: str
     type: str  # "program" or "machine"
