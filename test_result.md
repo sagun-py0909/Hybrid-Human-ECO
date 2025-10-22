@@ -231,6 +231,42 @@ backend:
           agent: "main"
           comment: "Added complete onboarding system backend. Updated user schema with mode, lifecycleForm, onboarding dates. New collections: shipment_tracking, dna_tracking. New endpoints: POST /api/lifecycle-form, GET /api/user/mode, GET /api/shipment-tracking, GET /api/dna-tracking, POST /api/tickets/with-video, GET /api/admin/users-with-mode, PUT /api/admin/user/{id}/mode, GET /api/admin/lifecycle-form/{id}, PUT /api/admin/shipment-tracking/{id}, GET /api/admin/shipment-tracking/{id}, PUT /api/admin/dna-tracking/{id}, GET /api/admin/dna-tracking/{id}, GET /api/admin/onboarding-stats. Ready for backend testing."
 
+  - task: "Password Reset Flow (Mock)"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/auth/forgot-password.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Created forgot password screen with email input and mock reset functionality. Added navigation from login screen. Backend endpoint /api/auth/password-reset-request already exists. Ready for testing."
+
+  - task: "Task Rescheduling"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py, /app/frontend/app/(tabs)/schedule.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Added complete task rescheduling functionality. Backend: Added TaskReschedule model and PUT /api/programs/task/reschedule endpoint that moves incomplete tasks to new dates, handles existing/new programs on target date, removes task from original program. Frontend: Added reschedule button on task cards, date picker modal with DateTimePicker, validation to prevent past date rescheduling, prevents rescheduling completed tasks. Ready for testing."
+
+  - task: "Admin Data Export (CSV)"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py, /app/admin-web/src/pages/Users.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implemented CSV export functionality. Backend: Added GET /api/admin/export/user-data endpoint that collects comprehensive user data including stats, progress, completion rates, device usage, tickets, and calls. Frontend: Added Export CSV button in Users page header, exportToCSV function generates CSV file with all user data and downloads it. Ready for testing."
+
 frontend:
   - task: "Product Selection UI in Contact Screen"
     implemented: true
