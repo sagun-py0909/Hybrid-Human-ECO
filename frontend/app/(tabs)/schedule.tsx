@@ -90,6 +90,68 @@ export default function ScheduleScreen() {
     }
   };
 
+  const handleRescheduleTask = (task: any) => {
+    if (task.completed) {
+      Alert.alert('Cannot Reschedule', 'Completed tasks cannot be rescheduled');
+      return;
+    }
+    setSelectedTask(task);
+    setRescheduleDate(addDays(new Date(), 1)); // Default to tomorrow
+    setRescheduleModalVisible(true);
+    if (Platform.OS !== 'ios') {
+      setShowDatePicker(true);
+    }
+  };
+
+  const confirmReschedule = async () => {
+    if (!selectedTask) return;
+
+    // Don't allow rescheduling to past dates
+    if (isBefore(startOfDay(rescheduleDate), startOfDay(new Date()))) {
+      Alert.alert('Invalid Date', 'Cannot reschedule to a past date');
+      return;
+    }
+
+    setIsRescheduling(true);
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const newDateStr = format(rescheduleDate, 'yyyy-MM-dd');
+      
+      await axios.put(
+        `${API_URL}/programs/task/reschedule`,
+        {
+          programId: selectedTask.programId,
+          taskId: selectedTask.taskId,
+          newDate: newDateStr,
+        },
+        { headers }
+      );
+
+      Alert.alert(
+        'Success',
+        `Task rescheduled to ${format(rescheduleDate, 'MMMM d, yyyy')}`
+      );
+      setRescheduleModalVisible(false);
+      setSelectedTask(null);
+      loadPrograms();
+    } catch (error: any) {
+      console.error('Error rescheduling task:', error);
+      const errorMsg = error.response?.data?.detail || 'Failed to reschedule task';
+      Alert.alert('Error', errorMsg);
+    } finally {
+      setIsRescheduling(false);
+    }
+  };
+
+  const onDateChange = (event: any, selected: Date | undefined) => {
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
+    if (selected) {
+      setRescheduleDate(selected);
+    }
+  };
+
   const getFilteredTasks = () => {
     const allTasks: any[] = [];
     programs.forEach((program) => {
