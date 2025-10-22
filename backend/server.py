@@ -558,6 +558,77 @@ async def complete_task(task_data: TaskComplete, current_user: dict = Depends(ge
     
     return {"message": "Task completed successfully"}
 
+@api_router.put("/programs/task/reschedule")
+async def reschedule_task(task_data: TaskReschedule, current_user: dict = Depends(get_current_user)):
+    """
+    Reschedule an incomplete task to a new date.
+    Creates a new program for the new date with the rescheduled task.
+    """
+    # Get the original program
+    program = await db.programs.find_one({"_id": ObjectId(task_data.programId)})
+    if not program or program["userId"] != current_user["_id"]:
+        raise HTTPException(status_code=404, detail="Program not found")
+    
+    # Find the task
+    tasks = program.get("tasks", [])
+    task_to_reschedule = None
+    for task in tasks:
+        if task["taskId"] == task_data.taskId:
+            if task.get("completed"):
+                raise HTTPException(status_code=400, detail="Cannot reschedule completed task")
+            task_to_reschedule = task
+            break
+    
+    if not task_to_reschedule:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    # Check if program already exists for the new date
+    existing_program = await db.programs.find_one({
+        "userId": current_user["_id"],
+        "date": task_data.newDate
+    })
+    
+    if existing_program:
+        # Add task to existing program
+        existing_tasks = existing_program.get("tasks", [])
+        
+        # Check if task with same ID already exists
+        task_exists = any(t["taskId"] == task_to_reschedule["taskId"] for t in existing_tasks)
+        if task_exists:
+            raise HTTPException(status_code=400, detail="Task already exists on this date")
+        
+        existing_tasks.append(task_to_reschedule)
+        await db.programs.update_one(
+            {"_id": existing_program["_id"]},
+            {"$set": {"tasks": existing_tasks}}
+        )
+    else:
+        # Create new program for the new date
+        new_program = {
+            "userId": current_user["_id"],
+            "title": f"Rescheduled Tasks - {task_data.newDate}",
+            "description": "Tasks rescheduled from other dates",
+            "tasks": [task_to_reschedule],
+            "date": task_data.newDate,
+            "createdBy": current_user["_id"],
+            "createdAt": datetime.utcnow()
+        }
+        await db.programs.insert_one(new_program)
+    
+    # Remove task from original program
+    updated_tasks = [t for t in tasks if t["taskId"] != task_data.taskId]
+    
+    # If no tasks left, delete the program, otherwise update
+    if len(updated_tasks) == 0:
+        await db.programs.delete_one({"_id": ObjectId(task_data.programId)})
+    else:
+        await db.programs.update_one(
+            {"_id": ObjectId(task_data.programId)},
+            {"$set": {"tasks": updated_tasks}}
+        )
+    
+    return {"message": "Task rescheduled successfully", "newDate": task_data.newDate}
+
 @api_router.post("/programs", dependencies=[Depends(get_admin_user)])
 async def create_program(program: ProgramCreate, current_user: dict = Depends(get_admin_user)):
     program_dict = program.dict()
