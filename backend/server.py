@@ -279,6 +279,19 @@ class OnboardingStats(BaseModel):
     dnaStages: dict
     activeTickets: int
 
+class DNACollectionRequest(BaseModel):
+    userId: str
+    fullName: str
+    email: str
+    phone: str
+    address: str
+    preferredDate: str
+    preferredTime: str
+    notes: Optional[str] = None
+    status: str = "pending"  # pending/scheduled/completed/cancelled
+    createdAt: datetime = Field(default_factory=datetime.utcnow)
+
+
 # ============= AUTH UTILITIES =============
 
 def hash_password(password: str) -> str:
@@ -1190,6 +1203,43 @@ async def create_ticket_with_video(ticket: TicketWithVideo, current_user: dict =
     result = await db.tickets.insert_one(ticket_dict)
     return {"message": "Ticket created successfully", "ticketId": str(result.inserted_id)}
 
+
+@api_router.post("/dna-collection-request")
+async def request_dna_collection(
+    address: str,
+    preferredDate: str,
+    preferredTime: str,
+    notes: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """User requests DNA sample collection at their location"""
+    request_dict = {
+        "userId": current_user["_id"],
+        "fullName": current_user["fullName"],
+        "email": current_user["email"],
+        "phone": current_user.get("phone", ""),
+        "address": address,
+        "preferredDate": preferredDate,
+        "preferredTime": preferredTime,
+        "notes": notes,
+        "status": "pending",
+        "createdAt": datetime.utcnow()
+    }
+    
+    result = await db.dna_collection_requests.insert_one(request_dict)
+    return {
+        "message": "DNA collection request submitted successfully",
+        "requestId": str(result.inserted_id)
+    }
+
+@api_router.get("/dna-collection-request/my")
+async def get_my_dna_collection_request(current_user: dict = Depends(get_current_user)):
+    """Get current user's DNA collection request"""
+    request = await db.dna_collection_requests.find_one({"userId": current_user["_id"]})
+    if request:
+        request["_id"] = str(request["_id"])
+    return request or {}
+
 # ============= ADMIN ONBOARDING MANAGEMENT ENDPOINTS =============
 
 @api_router.get("/admin/users-with-mode")
@@ -1351,6 +1401,49 @@ async def get_onboarding_stats(current_user: dict = Depends(get_admin_user)):
         "dnaStages": dna_stages,
         "activeTickets": active_tickets
     }
+
+
+@api_router.get("/admin/dna-collection-requests")
+async def get_all_dna_collection_requests(current_user: dict = Depends(get_admin_user)):
+    """Get all DNA collection requests for admin"""
+    requests = await db.dna_collection_requests.find({}).sort("createdAt", -1).to_list(1000)
+    
+    requests_list = []
+    for request in requests:
+        request_dict = serialize_doc(request)
+        requests_list.append(request_dict)
+    
+    return {"requests": requests_list}
+
+@api_router.put("/admin/dna-collection-request/{request_id}/status")
+async def update_dna_collection_request_status(
+    request_id: str,
+    status: str,
+    scheduledDate: Optional[str] = None,
+    scheduledTime: Optional[str] = None,
+    adminNotes: Optional[str] = None,
+    current_user: dict = Depends(get_admin_user)
+):
+    """Update DNA collection request status"""
+    update_data = {"status": status}
+    
+    if scheduledDate:
+        update_data["scheduledDate"] = scheduledDate
+    if scheduledTime:
+        update_data["scheduledTime"] = scheduledTime
+    if adminNotes:
+        update_data["adminNotes"] = adminNotes
+    
+    result = await db.dna_collection_requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {"$set": update_data}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    return {"message": "Request status updated successfully"}
+
 
 
 async def seed_database():

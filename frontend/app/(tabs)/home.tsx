@@ -227,6 +227,22 @@ export default function HomeScreen() {
             <Ionicons name="fitness" size={24} color="#556B2F" />
             <Text style={styles.trackingTitle}>DNA Collection</Text>
           </View>
+
+          {/* Request DNA Collection Button */}
+          <TouchableOpacity
+            style={styles.requestButton}
+            onPress={() => router.push('/dna-collection-request')}
+          >
+            <LinearGradient
+              colors={['#556B2F', '#8FBC8F']}
+              style={styles.requestButtonGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Ionicons name="flask" size={20} color="#FFF" />
+              <Text style={styles.requestButtonText}>Request DNA Collection</Text>
+            </LinearGradient>
+          </TouchableOpacity>
           
           {dnaTracking && dnaTracking.currentStage ? (
             <>
@@ -715,5 +731,22 @@ const styles = StyleSheet.create({
     color: '#888',
     textAlign: 'center',
     padding: 20,
+  },
+  requestButton: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 16,
+  },
+  requestButtonGradient: {
+    height: 52,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  requestButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFF',
   },
 });
