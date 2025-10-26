@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import api from '../utils/api'
 import './Pages.css'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
 
 const Users = () => {
   const [users, setUsers] = useState([])
@@ -36,9 +34,7 @@ const Users = () => {
 
   const loadProducts = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(`${API_URL}/admin/products`, { headers })
+      const response = await api.get('/admin/products')
       setProducts(response.data)
     } catch (error) {
       console.error('Error loading products:', error)
@@ -47,9 +43,7 @@ const Users = () => {
 
   const loadUsers = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(`${API_URL}/admin/users-with-mode`, { headers })
+      const response = await api.get('/admin/users-with-mode')
       setUsers(response.data.users)
     } catch (error) {
       console.error('Error loading users:', error)
@@ -66,9 +60,7 @@ const Users = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-      await axios.post(`${API_URL}/admin/users/create`, createFormData, { headers });
+      await api.post('/admin/users/create', createFormData);
       alert('User created successfully! Default password: Welcome@123');
       setShowCreateModal(false);
       setCreateFormData({
@@ -96,9 +88,7 @@ const Users = () => {
     if (!window.confirm(confirmMessage)) return;
 
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-      await axios.put(`${API_URL}/admin/user/${user._id}/mode`, { mode: newMode }, { headers });
+      await api.put(`/admin/user/${user._id}/mode`, { mode: newMode });
       alert(`User mode updated to ${newMode}!`);
       loadUsers();
     } catch (error) {
@@ -115,12 +105,9 @@ const Users = () => {
 
   const assignDevices = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-      await axios.put(
-        `${API_URL}/admin/users/${selectedUser._id}/devices`,
-        { devices: selectedDevices },
-        { headers }
+      await api.put(
+        `/admin/users/${selectedUser._id}/devices`,
+        { devices: selectedDevices }
       );
       alert('Devices assigned successfully!');
       setShowDevicesModal(false);
@@ -135,9 +122,7 @@ const Users = () => {
     setSelectedUser(user)
     setShowProgressModal(true)
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(`${API_URL}/admin/user/${user._id}/progress`, { headers })
+      const response = await api.get(`/admin/user/${user._id}/progress`)
       setUserProgress(response.data)
     } catch (error) {
       console.error('Error loading progress:', error)
@@ -175,9 +160,7 @@ const Users = () => {
     if (!window.confirm(`Change user role to ${newRole}?`)) return
     
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-      await axios.put(`${API_URL}/admin/users/${userId}/role`, { role: newRole }, { headers })
+      await api.put(`/admin/users/${userId}/role`, { role: newRole })
       alert('Role updated successfully')
       loadUsers()
     } catch (error) {
@@ -190,9 +173,7 @@ const Users = () => {
     if (!window.confirm(`Delete user ${userName}? This cannot be undone.`)) return
     
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-      await axios.delete(`${API_URL}/admin/users/${userId}`, { headers })
+      await api.delete(`/admin/users/${userId}`)
       alert('User deleted successfully')
       loadUsers()
     } catch (error) {

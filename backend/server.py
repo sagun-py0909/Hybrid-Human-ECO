@@ -12,13 +12,14 @@ import uuid
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 import jwt
+from jwt import DecodeError, ExpiredSignatureError, InvalidTokenError
 from bson import ObjectId
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
-mongo_url = os.environ['MONGO_URL']
+mongo_url = os.environ ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
@@ -300,9 +301,10 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         user_id: str = payload.get("sub")
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid authentication credentials")
-    except jwt.ExpiredSignatureError:
+    except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.JWTError:
+    except (DecodeError, InvalidTokenError, Exception):
+        # Any decode/formatting error or other exceptions treat as invalid token
         raise HTTPException(status_code=401, detail="Invalid token")
     
     user = await db.users.find_one({"_id": ObjectId(user_id)})
@@ -999,7 +1001,7 @@ async def create_user_by_admin(user_data: UserCreate, current_user: dict = Depen
     if existing_user:
         raise HTTPException(status_code=400, detail="Username or email already exists")
     
-    # Create user
+    # Create user with all required fields
     user_dict = {
         "username": user_data.username,
         "email": user_data.email,
@@ -1008,6 +1010,11 @@ async def create_user_by_admin(user_data: UserCreate, current_user: dict = Depen
         "phone": user_data.phone,
         "role": user_data.role,
         "devices": user_data.devices,
+        "mode": "onboarding",  # Default to onboarding mode
+        "lifecycleForm": None,
+        "onboardingStartDate": datetime.utcnow(),
+        "onboardingCompletedDate": None,
+        "autoUnlockAfter25Days": True,
         "createdAt": datetime.utcnow()
     }
     

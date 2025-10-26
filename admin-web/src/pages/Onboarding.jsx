@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import './Pages.css';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
 
 export default function Onboarding() {
   const [stats, setStats] = useState(null);
@@ -30,12 +28,9 @@ export default function Onboarding() {
 
   const loadData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-
       const [statsRes, usersRes] = await Promise.all([
-        axios.get(`${API_URL}/admin/onboarding-stats`, { headers }),
-        axios.get(`${API_URL}/admin/users-with-mode`, { headers }),
+        api.get('/admin/onboarding-stats'),
+        api.get('/admin/users-with-mode'),
       ]);
 
       setStats(statsRes.data);
@@ -50,13 +45,10 @@ export default function Onboarding() {
 
   const loadUserDetails = async (user) => {
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-
       const [shipmentRes, dnaRes, formRes] = await Promise.all([
-        axios.get(`${API_URL}/admin/shipment-tracking/${user._id}`, { headers }),
-        axios.get(`${API_URL}/admin/dna-tracking/${user._id}`, { headers }),
-        axios.get(`${API_URL}/admin/lifecycle-form/${user._id}`, { headers }),
+        api.get(`/admin/shipment-tracking/${user._id}`),
+        api.get(`/admin/dna-tracking/${user._id}`),
+        api.get(`/admin/lifecycle-form/${user._id}`),
       ]);
 
       setShipmentTracking(shipmentRes.data);
@@ -73,17 +65,13 @@ export default function Onboarding() {
     if (!newStage.stage || !selectedUser) return;
 
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-
-      await axios.put(
-        `${API_URL}/admin/shipment-tracking/${selectedUser._id}`,
+      await api.put(
+        `/admin/shipment-tracking/${selectedUser._id}`,
         {
           stage: newStage.stage,
           note: newStage.note,
           eta: newStage.eta || null,
-        },
-        { headers }
+        }
       );
 
       alert('Shipment stage updated successfully!');
@@ -101,17 +89,13 @@ export default function Onboarding() {
     if (!newStage.stage || !selectedUser) return;
 
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-
-      await axios.put(
-        `${API_URL}/admin/dna-tracking/${selectedUser._id}`,
+      await api.put(
+        `/admin/dna-tracking/${selectedUser._id}`,
         {
           stage: newStage.stage,
           labName: newStage.labName || null,
           adminNotes: newStage.adminNotes || null,
-        },
-        { headers }
+        }
       );
 
       alert('DNA stage updated successfully!');
@@ -131,13 +115,9 @@ export default function Onboarding() {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-
-      await axios.put(
-        `${API_URL}/admin/user/${userId}/mode`,
-        { mode: 'unlocked' },
-        { headers }
+      await api.put(
+        `/admin/user/${userId}/mode`,
+        { mode: 'unlocked' }
       );
 
       alert('User unlocked successfully! They now have full access to their program.');

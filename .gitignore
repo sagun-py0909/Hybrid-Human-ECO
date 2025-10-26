@@ -30,8 +30,10 @@ next-env.d.ts
 dist/
 dist
 
-# Environment files (comprehensive coverage)
-
+# Environment files - IMPORTANT: Keep admin-web/.env tracked
+*.env
+*.env.*
+!admin-web/.env
 *token.json*
 *credentials.json*
 
@@ -41,28 +43,45 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 dump.rdb
+*.log
 
 # System files
 .DS_Store
 *.pem
+Thumbs.db
 
 # Python
 __pycache__/
-*pyc*
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
 venv/
 .venv/
+ENV/
+env/
+.Python
 
 # Development tools
 chainlit.md
 .chainlit
 .ipynb_checkpoints/
 .ac
+*.swp
+*.swo
+*~
 
 # Deployment
 .vercel
 
 # Data and databases
 agenthub/agents/youtube/db
+*.db
+*.sqlite
+*.sqlite3
 
 # Archive files and large assets
 **/*.zip
@@ -75,29 +94,30 @@ agenthub/agents/youtube/db
 
 # Build caches
 .cache/
+.parcel-cache/
 
-# Mobile development
-android-sdk/ -e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
+# Mobile development (React Native / Expo)
+android-sdk/
+.expo/
+.expo-shared/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
