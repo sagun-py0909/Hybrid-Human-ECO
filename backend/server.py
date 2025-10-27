@@ -952,7 +952,7 @@ async def upload_report(report_data: ReportUpload, current_user: dict = Depends(
 
 # ============= PRODUCT MANAGEMENT ROUTES =============
 
-@api_router.get("/admin/products", dependencies=[Depends(get_admin_user)])
+@api_router.get("/admin/products")
 async def get_all_products():
     """Get all products"""
     products = await db.products.find({}).to_list(1000)
