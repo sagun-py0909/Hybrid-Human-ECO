@@ -1,22 +1,32 @@
 <analysis>
-The AI engineer successfully built the core Hybrid Human mobile app with JWT authentication, user roles, and a basic tab navigation structure (Home, Schedule, Contact, Profile). Key features implemented include task management with date restrictions, profile viewing (reports, test scheduling), and initial contact forms. Subsequently, a full standalone React web-based admin panel was developed, including authentication, a dashboard, and management pages for Users, Programs, Reports, Tickets, and Call Requests, along with product management. The implementation faced a brief misdirection where admin features were initially built into the mobile app before being correctly transitioned to a separate web application. Currently, the engineer is refining the mobile app to include device tracking and enhancing the contact form with product selection for machine-related tickets.
+The AI engineer has significantly expanded the Hybrid Human application, moving from core functionality to a sophisticated two-mode system (onboarding/unlocked) and extensive UI/UX enhancements. Initially, the engineer focused on implementing product selection for machine-related tickets in the mobile app's contact form, requiring backend updates for  and subsequent frontend UI/logic. This phase encountered persistent Metro bundler caching issues, necessitating various workarounds and troubleshooting.
+
+Subsequently, a major architectural shift was introduced: a two-mode system for users (onboarding and unlocked). This involved adding new data models and API endpoints to the FastAPI backend for managing user lifecycle, lifestyle forms, shipment tracking, and DNA collection. The mobile app's Home and Schedule screens were adapted to this system, displaying dynamic content and locked features based on the user's mode. Concurrently, the admin panel was enhanced to manage users, their modes, and tracking statuses. UI/UX was a recurring focus, with a global color scheme update, safe area handling, accessibility fixes for text/placeholders, and a transition to hamburger menu navigation with animations for both mobile and admin panels. The final steps involved completing the admin panel UI for the hamburger menu.
 </analysis>
 
 <product_requirements>
-The Hybrid Human app is a premium wellness and healthcare platform for anti-aging services, targeting ultra high-value customers who own specific devices. It requires JWT authentication (username/email) and supports 'Regular User' and 'Admin' roles. The mobile app needs Home (history, quotes, upcoming schedule), Schedule (personalized daily tasks, mark complete, future rescheduling rules), Contact Us (program call scheduling, machine ticket raising with product selection), and Profile (user details, view PDF reports, schedule tests, contact options, logout, view owned devices, usage logs, product description). The UI should have a minimal luxury feel with black, olive green, and bleach tones. A separate web-based Admin Panel is required to manage users (create with default password, assign products), programs (create, assign, templates, flexible duration), reports (upload PDF, user-linked), tickets, calls, and track user progress (completion, streaks, task history, export data).
+The Hybrid Human app is a premium anti-aging platform for high-value customers owning specific devices. It features JWT authentication, 'Regular User' and 'Admin' roles. The mobile app initially required Home (history, quotes, upcoming schedule), Schedule (personalized tasks), Contact Us (program call scheduling, machine ticket raising with product selection), and Profile (user details, reports, test scheduling, logout, owned devices, usage logs, product description). The UI needed a minimal luxury feel with black, olive green, and bleach tones. A separate web-based Admin Panel was required for user management (create, assign products, default passwords), programs (create, assign, templates), reports (upload PDF), tickets, calls, and progress tracking (completion, streaks, task history, data export).
+
+Further requirements introduced a two-mode system:
+1.  **Onboarding Mode (mandatory 25-day period for first-time users):** Collects lifestyle data via a 4-step form (basic info, lifestyle, nutrition, medical). Users track product shipment and DNA collection status. Schedules and Reports are locked. Home displays tracking cards. Support allows video uploads (max 100MB, .mp4, mock S3). Profile is editable, but reports are empty. Admin controls this flow, updating statuses and unlocking users.
+2.  **Unlocked Mode (Post-Onboarding):** Admin manually switches users. Home shows program summary/device performance. Schedule is activated with tasks. Profile shows uploaded DNA/health reports. Existing users default to Unlocked.
+
+New features also include:
+*   A dedicated Product Range section in the mobile app with a catalog of machine cards, each linking to a detailed product description page.
+*   Hamburger icon navigation with smooth collapse/expand and slide transitions for both mobile and admin applications, replacing bottom tab navigation on mobile.
 </product_requirements>
 
 <key_technical_concepts>
-- **Stack**: Expo (React Native) for mobile, FastAPI for backend, MongoDB for database.
-- **Routing**: Expo Router for mobile app file-based navigation, React Router DOM for admin web app.
-- **State Management**: React Context for authentication in both frontend applications.
-- **UI Libraries**: React Native components for mobile, standard React components for web.
-- **Form Handling**:  (implied for both).
-- **Date Handling**:  (implied).
+-   **Stack**: Expo (React Native) for mobile, FastAPI for backend, MongoDB for database, React for Admin Web.
+-   **Routing**: Expo Router for mobile file-based navigation, React Router DOM for admin web.
+-   **State Management**: React Context (AuthContext) for authentication.
+-   **UI Libraries**: React Native components for mobile, Shadcn UI (implied for animations) for admin web.
+-   **Forms**:  (implied).
+-   **Animations**: ,  for mobile.
 </key_technical_concepts>
 
 <code_architecture>
-The application employs a monorepo-like structure with a clear separation between the mobile frontend, FastAPI backend, and a standalone React web admin panel.
+The application uses a monorepo structure separating the mobile frontend (), FastAPI backend (), and a React web admin panel ().
 
 **Directory Structure:**
 
@@ -24,59 +34,70 @@ The application employs a monorepo-like structure with a clear separation betwee
 **Key Files and their importance:**
 
 -   :
-    -   **Summary**: Core FastAPI backend defining API endpoints, MongoDB models (users, programs, tasks, reports, tickets, call requests, products, device usage), and authentication logic. It also includes admin-specific endpoints for managing users, programs (including bulk creation/templates), reports, tickets, calls, and products.
-    -   **Changes**: Initially set up with basic auth. Modified to include date restriction for task completion, new endpoints for product management, user creation with default password, and device assignment, and device-specific usage logs. Ticket model updated to include .
+    -   **Summary**: Core FastAPI backend.
+    -   **Changes**: Updated Ticket model with . Added , , , ,  models. User registration now includes . Implemented API endpoints for lifecycle form submission, admin user management (mode toggle, tracking updates), DNA collection requests, and admin management of these requests. Fixed  function name and a FastAPI startup decorator issue.
 -   :
-    -   **Summary**: The initial entry point for the Expo mobile application, likely responsible for redirecting to authentication or the main app.
-    -   **Changes**: Initial setup.
--    & :
-    -   **Summary**: Screens for user authentication (login and registration) in the mobile app.
-    -   **Changes**: Initial implementation for JWT auth.
+    -   **Summary**: Mobile contact screen for tickets/calls.
+    -   **Changes**: Updated  import, implemented product selection UI using , integrated  into ticket submission. Corrected device data structure ( instead of ). Applied new color scheme, safe area handling, and improved placeholder/label contrast.
 -   :
-    -   **Summary**: Defines the tab-based navigation layout for the main mobile app sections (Home, Schedule, Contact, Profile).
-    -   **Changes**: Initial setup of tab navigator.
+    -   **Summary**: Mobile home screen.
+    -   **Changes**: Implemented logic to display content dynamically based on user  (onboarding tracking cards or unlocked program summary). Added a button to request DNA collection. Applied new color scheme and safe area handling.
 -   :
-    -   **Summary**: Displays personalized daily task lists.
-    -   **Changes**: Modified to disallow marking tasks from other days as complete and to provide visual feedback and an info banner for non-today tasks.
+    -   **Summary**: Mobile schedule screen.
+    -   **Changes**: Implemented logic to lock/unlock access based on user . Applied new color scheme and safe area handling.
 -   :
-    -   **Summary**: Shows user details, options for reports, scheduling tests, contact, logout.
-    -   **Changes**: Updated to display owned devices and provide navigation to . Device loading functionality and UI added.
+    -   **Summary**: Mobile profile screen.
+    -   **Changes**: Added a link to the new  screen. Applied new color scheme and safe area handling.
+-    (NEW):
+    -   **Summary**: New 4-step multi-form for initial user lifestyle data collection during onboarding.
+    -   **Changes**: Created from scratch.
+-    (NEW):
+    -   **Summary**: New mobile screen for users to request DNA sample collection.
+    -   **Changes**: Created from scratch.
+-    (NEW):
+    -   **Summary**: New mobile screen showcasing product range with cards.
+    -   **Changes**: Created from scratch.
+-    (NEW):
+    -   **Summary**: New mobile screen for detailed product descriptions.
+    -   **Changes**: Created from scratch.
+-    (NEW):
+    -   **Summary**: Custom component replacing  for hamburger menu navigation.
+    -   **Changes**: Created, integrated  and .
 -   :
-    -   **Summary**: Provides options to schedule calls or raise machine-related tickets.
-    -   **Changes**: Currently being updated to include product selection when raising machine-related tickets.
+    -   **Summary**: Main mobile app layout.
+    -   **Changes**: Modified to use  for the main app navigation, replacing  group.
 -   :
-    -   **Summary**: A new screen in the mobile app to display details of an owned device, including usage logs and product description.
-    -   **Changes**: Initial creation, still requires full implementation of usage logs and description display.
+    -   **Summary**: Admin panel for user management.
+    -   **Changes**: Rewritten to include user creation, mode toggling (onboarding/unlocked), and device assignment functionalities.
+-    (NEW):
+    -   **Summary**: New admin page for overall onboarding management.
+    -   **Changes**: Created from scratch, integrated into admin routing and layout.
+-    (NEW):
+    -   **Summary**: New admin page to view and manage user DNA collection requests.
+    -   **Changes**: Created from scratch, integrated into admin routing and layout.
 -   :
-    -   **Summary**: This directory contains the standalone React web application for the admin panel.
-    -   **Changes**: Created from scratch following a decision to make it a separate web app. Includes , ,  (entry point),  (main application component and router setup),  (admin authentication context),  (sidebar navigation and layout), and various pages under  for Dashboard, Users, Programs, Reports, Tickets, Call Requests, and Products.
-
-The backend handles all data persistence and business logic, while the frontend (mobile and web) focuses on presentation and user interaction. Environment variables are used for API URLs to ensure portability.
+    -   **Summary**: Admin web app's main component and router setup.
+    -   **Changes**: Updated to include new routes for  and .
+-   :
+    -   **Summary**: Admin web app's sidebar navigation and layout.
+    -   **Changes**: Updated to include new navigation links for Onboarding and DNA Collection Requests. Enhanced with hamburger menu and animations.
+-   :
+    -   **Summary**: Styles for admin layout.
+    -   **Changes**: Updated to support new hamburger menu and animations.
 </code_architecture>
 
 <pending_tasks>
 -   Complete the mobile app's  screen to display usage logs and full product descriptions.
--   Fully implement the frontend UI for user creation and device assignment in the Admin Panel's  page.
 -   Implement rules for rescheduling tasks on the mobile app's schedule screen.
 -   Add functionality to export user data (CSV/PDF) from the Admin Panel.
--   Mock password reset for the mobile app, as initially requested.
+-   Mock password reset for the mobile app.
+-   Finalize the implementation of the  screen (only created, not fully populated in the trajectory due to token limits).
 </pending_tasks>
 
 <current_work>
-The AI engineer is currently in the process of enhancing the mobile application's Contact screen (). The objective is to allow users to select a specific product when they are raising a ticket related to a machine.
-
-Prior to this frontend work, the necessary backend changes have already been implemented:
-1.  The backend ticket model in  was updated to include a  field, linking tickets directly to a user's owned product (Chat 195).
-2.  The backend endpoint responsible for creating tickets was modified to accept and save this  when a new ticket is submitted (Chat 197).
-
-The immediate task is to update the frontend  screen. This involves:
--   Fetching the user's owned products to display them as a selection option.
--   Adding UI elements (e.g., a dropdown or radio buttons) for product selection when the user chooses to raise a machine-related ticket.
--   Modifying the ticket submission logic on the frontend to include the selected  in the API request payload.
-
-The current state is that the backend is ready to handle tickets with associated products, and the AI engineer is about to start or is in the initial phase of implementing the UI and logic on the mobile app's contact screen.
+Immediately before this summary request, the AI engineer was implementing the second part of the UI/UX enhancement related to navigation. Specifically, the admin panel's  and  files were being updated to transition from the previous navigation system to a hamburger menu with smooth collapse/expand and slide animations, leveraging Shadcn UI patterns. The  component was updated to render the new navigation structure, and  received the necessary styling for the animations and hamburger icon. The last action was updating  to support the new animations for the admin panel. The previous chat message confirmed Perfect! Now let me create a comprehensive final summary:, indicating the UI work for the admin panel navigation was considered complete by the AI engineer.
 </current_work>
 
 <optional_next_step>
-Complete the implementation of the  screen to include product selection for machine-related tickets.
+Provide the final summary of the completed work as requested by the user, and then ask for further enhancements or features.
 </optional_next_step>

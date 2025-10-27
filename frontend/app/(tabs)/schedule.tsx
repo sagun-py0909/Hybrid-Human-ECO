@@ -7,11 +7,14 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Modal,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
-import { format, addDays, subDays } from 'date-fns';
+import { format, addDays, subDays, isBefore, startOfDay } from 'date-fns';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL + '/api';
 
@@ -22,6 +25,11 @@ export default function ScheduleScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [userMode, setUserMode] = useState<string>('unlocked');
+  const [rescheduleModalVisible, setRescheduleModalVisible] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [rescheduleDate, setRescheduleDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isRescheduling, setIsRescheduling] = useState(false);
 
   useEffect(() => {
     checkUserMode();
@@ -79,6 +87,68 @@ export default function ScheduleScreen() {
       console.error('Error completing task:', error);
       const errorMsg = error.response?.data?.detail || 'Failed to complete task';
       Alert.alert('Error', errorMsg);
+    }
+  };
+
+  const handleRescheduleTask = (task: any) => {
+    if (task.completed) {
+      Alert.alert('Cannot Reschedule', 'Completed tasks cannot be rescheduled');
+      return;
+    }
+    setSelectedTask(task);
+    setRescheduleDate(addDays(new Date(), 1)); // Default to tomorrow
+    setRescheduleModalVisible(true);
+    if (Platform.OS !== 'ios') {
+      setShowDatePicker(true);
+    }
+  };
+
+  const confirmReschedule = async () => {
+    if (!selectedTask) return;
+
+    // Don't allow rescheduling to past dates
+    if (isBefore(startOfDay(rescheduleDate), startOfDay(new Date()))) {
+      Alert.alert('Invalid Date', 'Cannot reschedule to a past date');
+      return;
+    }
+
+    setIsRescheduling(true);
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const newDateStr = format(rescheduleDate, 'yyyy-MM-dd');
+      
+      await axios.put(
+        `${API_URL}/programs/task/reschedule`,
+        {
+          programId: selectedTask.programId,
+          taskId: selectedTask.taskId,
+          newDate: newDateStr,
+        },
+        { headers }
+      );
+
+      Alert.alert(
+        'Success',
+        `Task rescheduled to ${format(rescheduleDate, 'MMMM d, yyyy')}`
+      );
+      setRescheduleModalVisible(false);
+      setSelectedTask(null);
+      loadPrograms();
+    } catch (error: any) {
+      console.error('Error rescheduling task:', error);
+      const errorMsg = error.response?.data?.detail || 'Failed to reschedule task';
+      Alert.alert('Error', errorMsg);
+    } finally {
+      setIsRescheduling(false);
+    }
+  };
+
+  const onDateChange = (event: any, selected: Date | undefined) => {
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
+    if (selected) {
+      setRescheduleDate(selected);
     }
   };
 
@@ -252,6 +322,15 @@ export default function ScheduleScreen() {
                       <Text style={styles.metaText}>{task.duration}</Text>
                     </View>
                   </View>
+                  {!task.completed && (
+                    <TouchableOpacity
+                      style={styles.rescheduleButton}
+                      onPress={() => handleRescheduleTask(task)}
+                    >
+                      <Ionicons name="calendar-outline" size={16} color="#8FBC8F" />
+                      <Text style={styles.rescheduleButtonText}>Reschedule</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </View>
             ))
@@ -267,6 +346,79 @@ export default function ScheduleScreen() {
           )}
         </ScrollView>
       )}
+
+      {/* Reschedule Modal */}
+      <Modal
+        visible={rescheduleModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setRescheduleModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Reschedule Task</Text>
+              <TouchableOpacity
+                onPress={() => setRescheduleModalVisible(false)}
+                style={styles.closeButton}
+              >
+                <Ionicons name="close" size={24} color="#1A1A1A" />
+              </TouchableOpacity>
+            </View>
+
+            {selectedTask && (
+              <View style={styles.taskInfo2}>
+                <Text style={styles.taskInfoTitle}>{selectedTask.title}</Text>
+                <Text style={styles.taskInfoDesc}>{selectedTask.description}</Text>
+              </View>
+            )}
+
+            <View style={styles.dateSection}>
+              <Text style={styles.dateLabel}>New Date:</Text>
+              <TouchableOpacity
+                style={styles.dateButton}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Ionicons name="calendar" size={20} color="#8FBC8F" />
+                <Text style={styles.dateText}>
+                  {format(rescheduleDate, 'MMMM d, yyyy')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {(showDatePicker || Platform.OS === 'ios') && (
+              <DateTimePicker
+                value={rescheduleDate}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={onDateChange}
+                minimumDate={new Date()}
+              />
+            )}
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setRescheduleModalVisible(false)}
+                disabled={isRescheduling}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={confirmReschedule}
+                disabled={isRescheduling}
+              >
+                {isRescheduling ? (
+                  <ActivityIndicator color="#FFF" />
+                ) : (
+                  <Text style={styles.confirmButtonText}>Confirm</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -483,5 +635,123 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#1A1A1A',
     flex: 1,
+  },
+  rescheduleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: '#FAF0DC',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#D0C5B0',
+  },
+  rescheduleButtonText: {
+    fontSize: 13,
+    color: '#8FBC8F',
+    marginLeft: 6,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FAF0DC',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 40,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+  },
+  closeButton: {
+    padding: 4,
+  },
+  taskInfo2: {
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#D0C5B0',
+  },
+  taskInfoTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    marginBottom: 8,
+  },
+  taskInfoDesc: {
+    fontSize: 14,
+    color: '#4A4A4A',
+    lineHeight: 20,
+  },
+  dateSection: {
+    marginBottom: 24,
+  },
+  dateLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginBottom: 12,
+  },
+  dateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#D0C5B0',
+  },
+  dateText: {
+    fontSize: 16,
+    color: '#1A1A1A',
+    marginLeft: 12,
+    fontWeight: '600',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 24,
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#D0C5B0',
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+  },
+  confirmButton: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 12,
+    backgroundColor: '#556B2F',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFF',
   },
 });

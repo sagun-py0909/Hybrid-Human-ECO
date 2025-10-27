@@ -53,6 +53,45 @@ const Users = () => {
     }
   }
 
+  const exportToCSV = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(`${API_URL}/admin/export/user-data`, { headers });
+      
+      const data = response.data.data;
+      if (data.length === 0) {
+        alert('No data to export');
+        return;
+      }
+
+      // Convert to CSV
+      const headers_csv = Object.keys(data[0]).join(',');
+      const rows = data.map(row => 
+        Object.values(row).map(val => 
+          typeof val === 'string' && val.includes(',') ? `"${val}"` : val
+        ).join(',')
+      );
+      const csv = [headers_csv, ...rows].join('\n');
+
+      // Download
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `user-data-export-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      alert('Data exported successfully!');
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      alert('Failed to export data');
+    }
+  }
+
   const createUser = async () => {
     if (!createFormData.username || !createFormData.email || !createFormData.fullName) {
       alert('Please fill in all required fields');
@@ -198,9 +237,14 @@ const Users = () => {
           <h1 className="page-title">Users Management</h1>
           <p className="page-subtitle">Manage user accounts, modes, and devices</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-          ➕ Create User
-        </button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button className="btn btn-secondary" onClick={exportToCSV}>
+            📊 Export CSV
+          </button>
+          <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+            ➕ Create User
+          </button>
+        </div>
       </div>
 
       <div className="search-box">
