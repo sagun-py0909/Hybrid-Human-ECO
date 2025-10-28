@@ -48,9 +48,10 @@
 
 .stat-label {
   font-size: 14px;
-  color: #999;
+  color: #B8B8B8;
   text-transform: uppercase;
   letter-spacing: 1px;
+  font-weight: 500;
 }
 
 .card {
