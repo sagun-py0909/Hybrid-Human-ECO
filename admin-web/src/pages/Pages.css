@@ -132,10 +132,11 @@
   width: 100%;
   padding: 12px 16px;
   background: #0A0A0A;
-  border: 1px solid #2A2A2A;
+  border: 1px solid #3A3A3A;
   border-radius: 8px;
   font-size: 14px;
-  color: #E8E8E8;
+  color: #F5F5F5;
+  line-height: 1.5;
 }
 
 .input-group input:focus,
