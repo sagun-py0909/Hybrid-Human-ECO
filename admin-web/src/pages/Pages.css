@@ -167,6 +167,11 @@
 }
 
 .table td {
+  padding: 16px;
+  color: #E8E8E8;
+  border-bottom: 1px solid #2A2A2A;
+  font-size: 14px;
+}
 
 /* Onboarding specific styles */
 .stat-card.onboarding {
