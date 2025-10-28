@@ -216,19 +216,24 @@
 }
 
 .modal-content h2 {
-  color: #E8E8E8;
+  color: #FFFFFF;
   margin-bottom: 24px;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .modal-content h3 {
-  color: #8FBC8F;
+  color: #9FCC9F;
   margin-top: 20px;
   margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .modal-content p {
-  color: #E8E8E8;
+  color: #F5F5F5;
   margin-bottom: 8px;
+  line-height: 1.6;
 }
 
 .form-group {
