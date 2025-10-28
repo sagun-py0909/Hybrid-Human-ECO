@@ -72,7 +72,8 @@
 .card-title {
   font-size: 20px;
   font-weight: bold;
-  color: #E8E8E8;
+  color: #FFFFFF;
+  letter-spacing: 0.3px;
 }
 
 .btn {
