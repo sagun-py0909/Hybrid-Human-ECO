@@ -55,9 +55,7 @@ const Users = () => {
 
   const exportToCSV = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(`${API_URL}/admin/export/user-data`, { headers });
+      const response = await api.get('/admin/export/user-data');
       
       const data = response.data.data;
       if (data.length === 0) {

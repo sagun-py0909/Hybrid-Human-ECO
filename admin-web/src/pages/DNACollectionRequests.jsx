@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import './Pages.css';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
 
 export default function DNACollectionRequests() {
   const [requests, setRequests] = useState([]);
@@ -22,9 +20,7 @@ export default function DNACollectionRequests() {
 
   const loadRequests = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(`${API_URL}/admin/dna-collection-requests`, { headers });
+      const response = await api.get('/admin/dna-collection-requests');
       setRequests(response.data.requests);
     } catch (error) {
       console.error('Error loading requests:', error);
@@ -52,13 +48,9 @@ export default function DNACollectionRequests() {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-      
-      await axios.put(
-        `${API_URL}/admin/dna-collection-request/${selectedRequest._id}/status`,
-        statusUpdate,
-        { headers }
+      await api.put(
+        `/admin/dna-collection-request/${selectedRequest._id}/status`,
+        statusUpdate
       );
 
       alert('Request status updated successfully!');

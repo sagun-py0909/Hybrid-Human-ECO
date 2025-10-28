@@ -124,3 +124,20 @@ android-sdk/ -e
 # Environment files
 *.env
 *.env.*
+# Metro bundler (React Native) cache and artifacts
+/.metro/
+/.metro-cache
+metro-cache/
+node_modules/.cache/metro
+/tmp/metro-*
+/packager-info.json
+.packager
+# Expo
+.expo/
+.expo-shared/
+web-build/
+.expo-local/
+
+# npm
+.npm/
+npm-debug.log*
