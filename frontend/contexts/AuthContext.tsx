@@ -2,7 +2,14 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL + '/api';
+// Resolve backend URL at runtime. When running in a web browser on the same
+// machine use localhost to avoid routing through the machine IP which can
+// be unreachable due to network/firewall configs. For mobile (Expo Go), use
+// the environment-provided host (usually the developer machine IP).
+const _host = (typeof window !== 'undefined' && window.location.hostname === 'localhost')
+  ? 'http://localhost:51540'
+  : process.env.EXPO_PUBLIC_BACKEND_URL;
+const API_URL = `${_host}/api`;
 
 interface User {
   id: string;

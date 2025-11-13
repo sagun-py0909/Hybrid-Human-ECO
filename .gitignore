@@ -1,143 +1,185 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# FastAPI + Expo React Native .gitignore
+# Tailored for a Python (FastAPI) backend and an Expo-managed React Native frontend
 
-# IDE and editors
-.idea/
+# -----------------------
+# OS / Editor / IDE
+# -----------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
 .vscode/
+.idea/
+*.swp
+*.swo
 
-# Dependencies
+# -----------------------
+# Node / JavaScript / Expo
+# -----------------------
 node_modules/
-/node_modules
-/.pnp
-.pnp.js
-.yarn/install-state.gz
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
-
-# Testing
-/coverage
-
-# Next.js
-/.next/
-/out/
-next-env.d.ts
-*.tsbuildinfo
-
-# Production builds
-/build
-dist/
-dist
-
-# Environment files - IMPORTANT: Keep admin-web/.env tracked
-*.env
-*.env.*
-!admin-web/.env
-*token.json*
-*credentials.json*
-
-# Logs and debug files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 .pnpm-debug.log*
-dump.rdb
-*.log
 
-# System files
-.DS_Store
-*.pem
-Thumbs.db
+# Yarn v2/v3
+.pnp/
+.pnp.js
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/patches
+!.yarn/versions
+.yarn/install-state.gz
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-*.egg
-*.egg-info/
-dist/
-build/
-venv/
-.venv/
-ENV/
-env/
-.Python
-
-# Development tools
-chainlit.md
-.chainlit
-.ipynb_checkpoints/
-.ac
-*.swp
-*.swo
-*~
-
-# Deployment
-.vercel
-
-# Data and databases
-agenthub/agents/youtube/db
-*.db
-*.sqlite
-*.sqlite3
-
-# Archive files and large assets
-**/*.zip
-**/*.tar.gz
-**/*.tar
-**/*.tgz
-*.pack
-*.deb
-*.dylib
-
-# Build caches
-.cache/
-
-# Mobile development
-android-sdk/ -e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
-# Metro bundler (React Native) cache and artifacts
-/.metro/
-/.metro-cache
-metro-cache/
-node_modules/.cache/metro
-/tmp/metro-*
-/packager-info.json
-.packager
 # Expo
 .expo/
 .expo-shared/
 web-build/
 .expo-local/
+.packager
+packager-info.json
 
-# npm
-.npm/
+# Metro / React Native caches
+/.metro/
+.metro-cache/
+metro-cache/
+node_modules/.cache/metro
+/tmp/metro-*
+/packager-info.json
+
+# Build outputs (web / bundlers)
+/build/
+dist/
+*.tgz
+*.map
+*.tsbuildinfo
+
+# -----------------------
+# Android / iOS (mobile builds)
+# -----------------------
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+android/.cxx/
+android/local.properties
+
+# iOS
+ios/Pods/
+ios/build/
+ios/DerivedData/
+ios/*.xcworkspace
+ios/*.xcodeproj/project.xcworkspace
+*.xcuserdata
+*.xcuserstate
+
+# Gradle
+.gradle/
+gradle-app.setting
+
+# CocoaPods
+# Podfile.lock is often tracked; ignore Pods directory only
+Pods/
+
+# -----------------------
+# Python / FastAPI
+# -----------------------
+# Byte-compiled / caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+env/
+.venv/
+venv/
+ENV/
+env.bak/
+.venv*
+
+# Packaging
+*.egg
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+wheelhouse/
+
+# Testing / type checking
+.coverage
+coverage/
+.tox/
+.pytest_cache/
+.mypy_cache/
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+htmlcov/
+
+# Python-specific files
+.python-version
+.Python
+
+# -----------------------
+# Environment / Secrets
+# -----------------------
+# Ignore env files and local secrets (track only exceptions you explicitly allow)
+.env
+.env.*
+!.env.example
+
+# Credentials / tokens
+credentials.json
+*token.json*
+
+# -----------------------
+# Logs / Databases / Misc
+# -----------------------
+*.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.sqlite3
+*.db
+*.sqlite
+
+# Archive, binary and large files
+*.zip
+*.tar.gz
+*.tgz
+*.tar
+*.rar
+*.7z
+*.apk
+*.aab
+*.keystore
+
+# Certificates / keys
+*.pem
+*.key
+*.crt
+
+# Optional: Editor backups and temp files
+*~ 
+*.tmp
+*.bak
+*.orig
+
+# -----------------------
+# Local config files you may want to keep out of repo
+# -----------------------
+.vscode/
+.env.local
+.local/
+.idea/
+
+# -----------------------
+# End
+# -----------------------

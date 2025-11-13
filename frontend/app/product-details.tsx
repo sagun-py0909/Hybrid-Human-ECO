@@ -14,15 +14,36 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL + '/api';
+type Feature = {
+  icon: string;
+  title: string;
+  description: string;
+};
+
+type Product = {
+  _id: string;
+  name: string;
+  description: string;
+  category: string;
+  imageUrl?: string;
+  images: string[];
+  features?: Feature[];
+  specifications?: Record<string, string>;
+};
+
+const _host = (typeof window !== 'undefined' && window.location.hostname === 'localhost')
+  ? 'http://localhost:51540'
+  : process.env.EXPO_PUBLIC_BACKEND_URL;
+const API_URL = `${_host}/api`;
 const { width } = Dimensions.get('window');
 
 export default function ProductDetailsScreen() {
   const { token } = useAuth();
-  const { id } = useLocalSearchParams();
-  const [product, setProduct] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const params = useLocalSearchParams<{ id?: string | string[] }>();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
 
   useEffect(() => {
     loadProductDetails();
@@ -31,8 +52,8 @@ export default function ProductDetailsScreen() {
   const loadProductDetails = async () => {
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(`${API_URL}/admin/products`, { headers });
-      const foundProduct = response.data.find(p => p._id === id);
+      const response = await axios.get<Product[]>(`${API_URL}/admin/products`, { headers });
+      const foundProduct = response.data.find((p: Product) => p._id === String(id));
       
       if (foundProduct) {
         // Add placeholder images if not present
@@ -63,8 +84,8 @@ export default function ProductDetailsScreen() {
     }
   };
 
-  const getPlaceholderImage = (category) => {
-    const placeholders = {
+  const getPlaceholderImage = (category: string) => {
+    const placeholders: Record<string, string> = {
       'Cryotherapy': 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800',
       'Red Light Therapy': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800',
       'Hyperbaric Chamber': 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800',
@@ -74,8 +95,8 @@ export default function ProductDetailsScreen() {
     return placeholders[category] || 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=800';
   };
 
-  const generateDemoFeatures = (category) => {
-    const features = {
+  const generateDemoFeatures = (category: string): Feature[] => {
+    const features: Record<string, Feature[]> = {
       'Cryotherapy': [
         { icon: 'snow', title: 'Ultra-Cold Technology', description: 'Reaches -110°C to -140°C for maximum effectiveness' },
         { icon: 'flash', title: 'Rapid Recovery', description: 'Accelerates muscle recovery and reduces inflammation' },
@@ -101,7 +122,7 @@ export default function ProductDetailsScreen() {
     ];
   };
 
-  const generateDemoSpecifications = (category) => {
+  const generateDemoSpecifications = (_category: string): Record<string, string> => {
     return {
       'Dimensions': '200cm x 100cm x 220cm',
       'Weight': '350 kg',
@@ -153,7 +174,7 @@ export default function ProductDetailsScreen() {
             }}
             scrollEventThrottle={16}
           >
-            {product.images.map((image, index) => (
+              {product.images.map((image: string, index: number) => (
               <View key={index} style={styles.imageSlide}>
                 <Image
                   source={{ uri: image }}
@@ -170,7 +191,7 @@ export default function ProductDetailsScreen() {
           
           {/* Image Indicators */}
           <View style={styles.indicators}>
-            {product.images.map((_, index) => (
+              {product.images.map((_: string, index: number) => (
               <View
                 key={index}
                 style={[
@@ -200,10 +221,10 @@ export default function ProductDetailsScreen() {
           </View>
           
           <View style={styles.featuresGrid}>
-            {product.features.map((feature, index) => (
+            {product.features?.map((feature: Feature, index: number) => (
               <View key={index} style={styles.featureCard}>
                 <View style={styles.featureIcon}>
-                  <Ionicons name={feature.icon} size={24} color="#556B2F" />
+                  <Ionicons name={feature.icon as any} size={24} color="#556B2F" />
                 </View>
                 <Text style={styles.featureTitle}>{feature.title}</Text>
                 <Text style={styles.featureDescription}>{feature.description}</Text>
@@ -220,12 +241,16 @@ export default function ProductDetailsScreen() {
           </View>
           
           <View style={styles.specsContainer}>
-            {Object.entries(product.specifications).map(([key, value], index) => (
-              <View key={index} style={styles.specRow}>
-                <Text style={styles.specLabel}>{key}</Text>
-                <Text style={styles.specValue}>{value}</Text>
-              </View>
-            ))}
+              {product.specifications &&
+                Object.keys(product.specifications).map((key: string, index: number) => {
+                  const value = product.specifications![key];
+                  return (
+                    <View key={index} style={styles.specRow}>
+                      <Text style={styles.specLabel}>{key}</Text>
+                      <Text style={styles.specValue}>{value}</Text>
+                    </View>
+                  );
+                })}
           </View>
         </View>
 
